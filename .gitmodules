@@ -1,0 +1,3 @@
+[submodule "docker/docker-gitlab"]
+	path = docker/docker-gitlab
+	url = https://github.com/sameersbn/docker-gitlab.git
