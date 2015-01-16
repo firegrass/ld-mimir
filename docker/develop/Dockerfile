@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y \
     g++ \
     gettext \
     make \
-    git
+    git \
+    wget \
+    htop
     
 RUN git clone https://github.com/mono/mono && \
     cd mono && \ 
@@ -27,6 +29,4 @@ RUN apt-get install -y nodejs npm &&\
     npm install -g grunt &&\
     ln /usr/bin/nodejs /usr/bin/node
 
-CMD /bin/bash
-
-
+cmd /bin/bash
