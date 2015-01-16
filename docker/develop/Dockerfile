@@ -29,4 +29,6 @@ RUN apt-get install -y nodejs npm &&\
     npm install -g grunt &&\
     ln /usr/bin/nodejs /usr/bin/node
 
+RUN apt-get install -y docker.io
+
 cmd /bin/bash
