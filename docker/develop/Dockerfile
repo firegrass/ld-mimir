@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y \
     htop
     
 RUN git clone https://github.com/mono/mono && \
-    cd mono && \ 
+    cd mono && \
+    git checkout mono-3.10.0-branch && \
     ./autogen.sh   --prefix /usr && \
     make get-monolite-latest && \
     make && \
