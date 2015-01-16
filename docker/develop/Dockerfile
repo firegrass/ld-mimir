@@ -16,7 +16,6 @@ RUN git clone https://github.com/mono/mono && \
     cd mono && \
     git checkout mono-3.10.0-branch && \
     ./autogen.sh   --prefix /usr && \
-    make get-monolite-latest && \
     make && \
     make install && \
     cd / && rm -rf mono
