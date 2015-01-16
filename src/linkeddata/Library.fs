@@ -1,16 +1,21 @@
-namespace linkeddata
 
-/// Documentation for my library
-///
-/// ## Example
-///
-///     let h = Library.hello 1
-///     printfn "%d" h
-///
-module Library = 
+module Git
+
+open LibGit2Sharp
+
+
+type Commit =
+  | Commit of LibGit2Sharp.Commit
+  | Head
   
-  /// Returns 42
-  ///
-  /// ## Parameters
-  ///  - `num` - whatever
-  let hello num = 42
+let commits (r:LibGit2Sharp.Repository) f = query {
+  for c in r.Commits do
+  where (f c)
+  yield c
+}
+
+let diffs (r:LibGit2Sharp.Repository) cx = query {
+   
+
+}
+
