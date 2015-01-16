@@ -68,12 +68,6 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\linkeddata\gitoprov.fsproj">
-      <Project>{7E90D6CE-A10B-4858-A5BC-41DF7250CBCA}</Project>
-      <Name>gitoprov</Name>
-    </ProjectReference>
-  </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
