@@ -1,8 +1,6 @@
-FROM phusion/baseimage
+FROM nice/linkeddata-app
 MAINTAINER Ryan Roberts <ryansroberts@gmail.com>
-RUN apt-get update \
- && apt-get install -y nodejs \
- && ln /usr/bin/nodejs /usr/bin/node 
+
 ADD artifacts/gore.io src/
 
 EXPOSE  80

@@ -1,4 +1,4 @@
-image: oarfish/linkeddata-devel
+image: nice/linkeddata-build
 script:
   - ./.drone/build.sh
 deploy:
