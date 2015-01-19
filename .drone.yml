@@ -1,3 +1,6 @@
 image: oarfish/linkeddata-devel
 script:
-  - build.sh
+  - ./.drone/build.sh
+deploy:
+  bash:
+    - ./.drone/deploy.sm
