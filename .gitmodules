@@ -1,3 +1,6 @@
 [submodule "docker/docker-gitlab"]
 	path = docker/docker-gitlab
 	url = https://github.com/sameersbn/docker-gitlab.git
+[submodule "src/gore.io"]
+	path = src/gore.io
+	url = https://github.com/CharlotteGore/gore.io.git
