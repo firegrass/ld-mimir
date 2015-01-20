@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/ryansroberts/linkeddata.png?label=ready&title=Ready)](https://waffle.io/ryansroberts/linkeddata)
 # ProjectScaffold
 
 This project can be used to scaffold a prototypical .NET solution including file system layout and tooling. This includes a build process that: 
