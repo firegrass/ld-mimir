@@ -1,7 +1,7 @@
 FROM nice/linkeddata-app
 MAINTAINER Ryan Roberts <ryansroberts@gmail.com>
 
-ADD artifacts/gore.io src/
+ADD src/gore.io/ /gore.io/
 
 EXPOSE  80
-CMD ["node", "/src/gore.io/server.js","--project","/tmp","--port","80"]
+CMD ["node", "/gore.io/server.js","--project","/tmp","--port","80"]
