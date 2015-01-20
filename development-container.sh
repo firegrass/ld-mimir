@@ -1,7 +1,6 @@
 #!/bin/bash
 
-docker build -t "nice/ldci" docker/develop/
-docker kill ldci 
-docker rm ldci
-docker run -d --name ldci -v $(pwd):/src/ -t nice/ldci
+docker kill linkeddata-build 
+docker rm linkeddata-build
+docker run -d --name linkeddata-build -v $(pwd):/src/ -t nice/linkeddata-build
 
