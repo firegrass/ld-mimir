@@ -5,7 +5,6 @@ cd /var/cache/drone/src/github/ryansroberts/linkeddata
 cd ../
 ./build.sh 
 
-# As yet unwritten smoke tests
 
 wrapdocker &  
 sleep 5
