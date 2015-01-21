@@ -1,6 +1,6 @@
 image: nice/linkeddata-build
 script:
-  - ./.drone/build.sh $DOCKERHUB_EMAIL $DOCKERHUB_USER $DOCKERHUB_PASS
+  - ./.drone/build.sh $$DOCKERHUB_EMAIL $$DOCKERHUB_USER $$DOCKERHUB_PASS
   - ./.drone/stop-docker.sh
 deploy:
   bash:
