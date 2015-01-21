@@ -1,6 +1,7 @@
 image: nice/linkeddata-build
 script:
   - ./.drone/build.sh
+  - ./.drone/stop-docker.sh
 deploy:
   bash:
     - ./.drone/deploy.sm
