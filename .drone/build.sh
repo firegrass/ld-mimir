@@ -2,7 +2,7 @@
 set -e  
 cd $DRONE_BUILD_DIR
 
-cd ../
+
 ./build.sh 
 
 
