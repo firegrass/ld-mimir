@@ -4,4 +4,4 @@ script:
   - ./.drone/stop-docker.sh
 deploy:
   bash:
-    - ./.drone/deploy.sm
+    - ./.drone/deploy.sh
