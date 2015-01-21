@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e  
-cd /var/cache/drone/src/github/ryansroberts/linkeddata
+cd $DRONE_BUILD_DIR
 
 cd ../
 ./build.sh 
