@@ -24,4 +24,26 @@ PANDOC_OPT = -r simple_tables+table_captions+yaml_metadata_block+tex_math_dollar
 html: clean 
 	    pandoc $(PANDOC_OPT) --template=$(TEMPLATES)/html.template -t html5 $(MARKDOWN) -o $(BUILD)/index.html 
 
-all: html
+stash:
+	-git stash
+
+ghpages: 
+		git stash ; \
+		git checkout gh-pages ; \ 
+		git checkout master -- docs/export ; \
+		mv docs/export/* . ; \
+		git add --all ; \
+		git commit -m "Automated update of gh-pages" ; \
+		git push origin gh-pages ; \
+		git checkout master
+
+pop: 
+	-git stash pop
+
+
+npm:
+		cd src/gore.io && npm install
+
+publish: stash ghpages pop
+
+all: html publish npm
