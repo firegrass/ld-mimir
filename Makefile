@@ -18,6 +18,7 @@ MARKDOWN += $(PAGES)
 TEMPLATES = docs/templates/
 
 clean:
+<<<<<<< HEAD
 PANDOC_OPT = -r simple_tables+table_captions+yaml_metadata_block+tex_math_dollars+tex_math_single_backslash -s -S --normalize --smart -f markdown --standalone --toc  
 
 
@@ -39,3 +40,12 @@ npm:
 	cd src/owldin && npm install
 
 all: npm 
+=======
+
+PANDOC_OPT = -r simple_tables+table_captions+yaml_metadata_block+tex_math_dollars+tex_math_single_backslash -s -S --normalize --smart -f markdown --standalone --toc
+
+html: clean 
+	    pandoc $(PANDOC_OPT) --template=$(TEMPLATES)/html.template -t html5 $(MARKDOWN) -o $(BUILD)/index.html 
+
+all: html
+>>>>>>> Rejigged the files around a bit
