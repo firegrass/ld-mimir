@@ -3,5 +3,8 @@ script:
   - ./.drone/build.sh
   - ./.drone/stop-docker.sh
 deploy:
-  bash:
-    - ./.drone/deploy.sh
+  docker:
+    imagename: nice/mimir
+    username: $$DOCKERHUB_USER
+    password: $$DOCKERHUB_PASS
+    email: $$DOCKERHUB_EMAIL
