@@ -1,10 +1,12 @@
-image: nice/linkeddata-build
+image: nice/linkeddata-build:latest
 script:
   - ./.drone/build.sh
 publish:
   docker:
-    imagename: nice/mimir
+    image_name: nice/mimir
     username: $$DOCKERHUB_USER
     password: $$DOCKERHUB_PASS
     email: $$DOCKERHUB_EMAIL
     registry_login: true
+    docker_host: tcp://172.17.42.1:2375 
+    
