@@ -1,7 +1,6 @@
 image: nice/linkeddata-build
 script:
   - ./.drone/build.sh
-  - ./.drone/stop-docker.sh
 deploy:
   docker:
     imagename: nice/mimir
