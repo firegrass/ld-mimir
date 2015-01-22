@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     git \
     wget \
     htop \
+    pandoc \
     
 RUN git clone https://github.com/mono/mono && \
     cd mono && \
