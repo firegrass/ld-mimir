@@ -1,5 +1,5 @@
 #!/bin/bash
-env
+echo $(env)
 set -e  
 cd $DRONE_BUILD_DIR
 
