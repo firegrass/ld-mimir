@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
     make \
     git \
     wget \
-    htop
+    htop \
+    pandoc \
     
 RUN git clone https://github.com/mono/mono && \
     cd mono && \
