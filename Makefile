@@ -38,4 +38,4 @@ publish:
 npm:
 	cd src/gore.io && npm install
 
-all: publish npm
+all: npm publish 
