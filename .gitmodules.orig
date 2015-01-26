@@ -1,12 +1,9 @@
 <<<<<<< HEAD
-[submodule "docker/docker-gitlab"]
-	path = docker/docker-gitlab
-	url = https://github.com/sameersbn/docker-gitlab.git
 [submodule "lib/libgit2sharp"]
 	path = lib/libgit2sharp
 	url = https://github.com/libgit2/libgit2sharp.git
 =======
 [submodule "src/gore.io"]
 	path = src/gore.io
-	url = https://github.com/CharlotteGore/gore.io.git
->>>>>>> Remove module, regkey
+	url = https://github.com/CharlotteGore/gore.io
+>>>>>>> Restore gore
