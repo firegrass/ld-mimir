@@ -32,10 +32,4 @@ RUN apt-get install -y nodejs npm &&\
     npm install -g grunt &&\
     ln /usr/bin/nodejs /usr/bin/node
 
-RUN apt-get install -y apparmor  
-RUN curl -s https://get.docker.io/ubuntu/ | sudo sh  
-ADD wrapdocker /usr/local/bin/wrapdocker  
-RUN chmod +x /usr/local/bin/wrapdocker  
-
-CMD ["wrapdocker"]
-
+RUN git config --global core.autocrlf true
