@@ -31,5 +31,4 @@ RUN mozroots -sync --quiet
 RUN apt-get install -y nodejs npm &&\
     npm install -g grunt &&\
     ln /usr/bin/nodejs /usr/bin/node
-
-RUN git config --global core.autocrlf true
+    
