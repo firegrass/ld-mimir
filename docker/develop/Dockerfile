@@ -28,7 +28,7 @@ RUN apt-get install -y autoconf libtool pkg-config make git && \
     cd fsharp && ./autogen.sh --prefix /usr && make && make install && \
     cd / && rm -rf fsharp
 
-RUN mozroots --import --sync --machine &&\
+RUN mozroots --import --sync  &&\
     certmgr --ssl -m https://go.microsoft.com &&\
     certmgr -ssl -m https://nugetgallery.blob.core.windows.net &&\
     certmgr -ssl -m https://nuget.org
