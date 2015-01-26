@@ -8,10 +8,12 @@ RUN apt-get update && apt-get install -y \
     g++ \
     gettext \
     make \
+    cmake \
     git \
     wget \
     htop \
-    pandoc
+    pandoc \
+    haskell-platform
     
 RUN git clone https://github.com/mono/mono && \
     cd mono && \
