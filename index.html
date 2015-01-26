@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <title>Mínir: Semantic Content Pipeline</title>
+  <title>Mímir: Semantic Content Pipeline</title>
   <style type="text/css">code{white-space: pre;}</style>
   <link rel="stylesheet" type="text/css" href="style.css">
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
 <body>
 <header>
 
-<h1 class="title">Mínir: Semantic Content Pipeline</h1>
+<h1 class="title">Mímir: Semantic Content Pipeline</h1>
 
 
 
@@ -22,18 +22,33 @@
 <ul>
 <li><a href="#introduction">Introduction</a></li>
 <li><a href="#building">Building</a></li>
-<li><a href="#mínir-architecture">Mínir Architecture</a></li>
+<li><a href="#mímir-architecture">Mímir Architecture</a></li>
+<li><a href="#docker-containers">Docker containers</a><ul>
+<li><a href="#the-old-demo">The Old Demo</a></li>
+</ul></li>
 </ul>
 </nav>
 
 <section class="main">
 <h2 id="introduction">Introduction</h2>
-<p>Mínir is a Semantic Content Pipeline. Markdown goes in, metadata and semantic information is extracted and this then forms a knowledge base</p>
-<p>TODO - Mínir - Semantic Content Pipeline</p>
+<p>Mímir is a Semantic Content Pipeline. Markdown goes in, metadata and semantic information is extracted and this then forms a knowledge base</p>
+<p>TODO - Mímir - Semantic Content Pipeline</p>
 <h2 id="building">Building</h2>
 <p>Mindblowing stuff involving docker</p>
-<h2 id="mínir-architecture">Mínir Architecture</h2>
+<h2 id="mímir-architecture">Mímir Architecture</h2>
 <p>Featuring Owldin, the friendly neighbourhood data service.</p>
+<h2 id="docker-containers">Docker containers</h2>
+<h3 id="the-old-demo">The Old Demo</h3>
+<p>Mímir currently uses the old Linked Data demonstrator as a source of data.</p>
+<p>This should happen automatically but for legacy purposes, this is how to run the old demo:</p>
+<p>Get the olddemo Docker container:</p>
+<pre class="sh"><code>$ docker pull nice/olddemo</code></pre>
+<p>Next you’ll need to find the IP address for the docker host (if you want to connect and view it directly)</p>
+<pre class="sh"><code>$ boot2docker ip</code></pre>
+<p>Finally, to run it:</p>
+<pre class="sh"><code>$ docker run -p 3210:80 nice/olddemo</code></pre>
+<p>To view it, navigate to http://<span class="math"><em>D</em><em>O</em><em>C</em><em>K</em><em>E</em><em>R</em><em>H</em><em>O</em><em>S</em><em>T</em><em>I</em><em>P</em></span>:3210/index.html</p>
+<p>That’s it!</p>
 </section>
 </body>
 </html>
