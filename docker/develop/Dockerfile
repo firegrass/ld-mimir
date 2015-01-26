@@ -29,7 +29,7 @@ RUN apt-get install -y autoconf libtool pkg-config make git && \
 RUN mozroots --import --sync --machine &&\
     certmgr --ssl -m https://go.microsoft.com &&\
     certmgr -ssl -m https://nugetgallery.blob.core.windows.net &&\
-    certmgr -ssl -m https://nuget.org--quiet 
+    certmgr -ssl -m https://nuget.org
 
 RUN apt-get install -y nodejs npm &&\
     npm install -g grunt &&\
