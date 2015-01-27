@@ -1,4 +1,4 @@
-FROM nice/linkeddata-app
+FROM nice/ld-docker-app
 MAINTAINER Ryan Roberts <ryansroberts@gmail.com>
 
 ADD src/owldin/ /owldin/
