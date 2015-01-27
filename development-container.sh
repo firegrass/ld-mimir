@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker kill linkeddata-build 
-docker rm linkeddata-build
-docker run -d --name linkeddata-build -v $(pwd):/src/ -t nice/linkeddata-build
+docker kill ld-docker-build
+docker rm ld-docker-build
+docker run -d --name ld-docker-build -v $(pwd):/ -t nice/ld-docker-build
 
