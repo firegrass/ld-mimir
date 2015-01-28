@@ -1,5 +1,6 @@
 
-## Running the Mimir Docker Container
+## Running a Mimir Instance
+
 
 To use Mimir you need to run and link the old linked data demo - this is used as a source of linked data.
 
@@ -41,3 +42,30 @@ $boot2docker ip
 ~~~
 
 You can then navigate to (in this example's case) http://${DOCKER_HOST}:3424 and you're done.
+
+## Running the old Linked Data Demo Standalone
+
+Assuming you have a docker host (boot2docker for example), the process for installing the container:
+
+~~~sh
+$ docker pull nice/olddemo
+~~~
+
+And then running:
+
+~~~sh
+$ docker run nice/olddemo
+~~~
+
+To find the IP address (the ${DOCKER_HOST}) run:
+
+~~~sh
+$ boot2docker ip
+~~~
+
+Then you can navigate to http://${DOCKER_HOST}/index.html
+
+That's it!
+
+
+
