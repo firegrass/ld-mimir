@@ -36,6 +36,6 @@ publish:
 	git stash pop
 
 npm:
-	cd src/gore.io && npm install
+	cd src/owldin && npm install
 
 all: npm 
