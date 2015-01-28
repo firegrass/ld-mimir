@@ -22,7 +22,9 @@
 <nav id="TOC">
 <ul>
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#running-the-mimir-docker-container">Running the Mimir Docker Container</a></li>
+<li><a href="#running-a-mimir-instance">Running a Mimir Instance</a></li>
+<li><a href="#running-the-old-linked-data-demo-standalone">Running the old Linked Data Demo Standalone</a></li>
+<li><a href="#mímir-architecture">Mímir Architecture</a></li>
 <li><a href="#provenence">Provenence</a></li>
 </ul>
 </nav>
@@ -31,7 +33,7 @@
 <h2 id="introduction">Introduction</h2>
 <p>Mímir is a Semantic Content Pipeline. Markdown goes in, metadata and semantic information is extracted and this then forms a knowledge base</p>
 <p>TODO - Mímir - Semantic Content Pipeline</p>
-<h2 id="running-the-mimir-docker-container">Running the Mimir Docker Container</h2>
+<h2 id="running-a-mimir-instance">Running a Mimir Instance</h2>
 <p>To use Mimir you need to run and link the old linked data demo - this is used as a source of linked data.</p>
 <p>To begin, pull the olddemo image.</p>
 <pre class="sh"><code>$ docker pull nice/olddemo</code></pre>
@@ -49,7 +51,17 @@
 </ul>
 <p>To connect to the Mimir instance, you need the docker host ip address. On Mac OS X, this is:</p>
 <pre class="sh"><code>$boot2docker ip</code></pre>
-<p>You can then navigate to (in this example’s case) http://${DOCKER_HOST}:3424 and you’re done. ## Mímir Architecture</p>
+<p>You can then navigate to (in this example’s case) http://${DOCKER_HOST}:3424 and you’re done.</p>
+<h2 id="running-the-old-linked-data-demo-standalone">Running the old Linked Data Demo Standalone</h2>
+<p>Assuming you have a docker host (boot2docker for example), the process for installing the container:</p>
+<pre class="sh"><code>$ docker pull nice/olddemo</code></pre>
+<p>And then running:</p>
+<pre class="sh"><code>$ docker run nice/olddemo</code></pre>
+<p>To find the IP address (the ${DOCKER_HOST}) run:</p>
+<pre class="sh"><code>$ boot2docker ip</code></pre>
+<p>Then you can navigate to http://${DOCKER_HOST}/index.html</p>
+<p>That’s it!</p>
+<h2 id="mímir-architecture">Mímir Architecture</h2>
 <p>Featuring Owldin, the friendly neighbourhood data service.</p>
 <p>TO DO</p>
 <h1 id="provenence">Provenence</h1>
