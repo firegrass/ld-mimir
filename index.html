@@ -38,13 +38,12 @@
 <li><a href="#plain-text">Plain-text</a></li>
 <li><a href="#what-is-provenance">What is Provenance?</a></li>
 <li><a href="#provenance-extraction-from-version-control">Provenance extraction from version control</a></li>
-<li><a href="#desired-behaviour">Desired behaviour</a></li>
-<li><a href="#translation">Translation</a></li>
 <li><a href="#uri-generation">URI generation</a><ul>
 <li><a href="#on-short-hash-length">On short hash length</a></li>
 <li><a href="#dereferencability">Dereferencability</a></li>
 <li><a href="#resource-uri-generation">Resource URI generation</a></li>
 </ul></li>
+<li><a href="#updating-these-docs">Updating these docs</a></li>
 </ul></li>
 </ul>
 </nav>
@@ -127,11 +126,8 @@
 <p>The Git2Prov project<span class="citation" data-cites="denies_iswc_2013"><sup>5</sup></span> demonstrates a model for extracting PROV from a git repository. A altered version of this model is presented here that demonstrates the core concepts.</p>
 <p>A git repository can be viewed as a sequence of linked commits. Each commit contains the complete repository state at that point and has a unique hash code along with metadata describing the change and identifying the users involved. A diff can be created for any pair of commits that will show altered, added, renamed and copied files.</p>
 <p>Our process to translate git into W3C PROV differs slightly from this work (which has a node implementation) and is described here.</p>
-<h2 id="desired-behaviour">Desired behaviour</h2>
-<p>The generated provenance should be a idempotent injective transformation of the git object database. Generation of provenance from a database should always produce the same provenance, no matter how many times it is executed. This is critical as the linked data project is a distributed system, with many clones of the content repository.</p>
-<h2 id="translation">Translation</h2>
 <figure>
-<img src="git.png" alt="Git object structure (c=commit d=diff f=changed files)" /><figcaption>Git object structure (c=commit d=diff f=changed files)</figcaption>
+<img src="images/git.png" alt="Git object structure (c=commit d=diff f=changed files)" /><figcaption>Git object structure (c=commit d=diff f=changed files)</figcaption>
 </figure>
 <p>To translate from this to the PROV data model we use the following process:</p>
 <ul>
@@ -183,6 +179,27 @@ vcs:commit-{c.SHAHash} prov:uses cs:file-{f.SHAHash}-{f.FilePath} ;
 <p>Git content ids (vcs:file) should be dereferencable, either by representing the content as a property of the uri, or through the use of a service that can resolve them to the text they represent (see github raw URLs for reference). Provenance will be used as input to the resource compiler, so it needs to be able to simply access the content that the provenance graph refers to.</p>
 <h3 id="resource-uri-generation">Resource URI generation</h3>
 <p>The ‘prov:specialisationOf’ property is a URI that represents the resource at any version, so it is vital that we can compute the same URI with different git histories. So we cannot use a git object hash. We also cannot use an identity generation process (such as guid/uuid tricks) external to git, as this violates our idempotency requirement. So provisionally we will walk the history of the file, find the first commit and take a hash of its path and file name.</p>
+<h2 id="updating-these-docs">Updating these docs</h2>
+<p>While working on a forked version of Mimir:</p>
+<ul>
+<li>Delete local and remote versions of the <code>gh-pages</code> branch.</li>
+<li>Ensure the <code>nhsevidence/ld-mimir</code> repo is added as a remote, called <code>upstream</code> and make sure your local fork is up to date:</li>
+</ul>
+<pre class="sh"><code>$ git fetch
+$ get rebase upstream/master</code></pre>
+<ul>
+<li>Checkout upstream’s gh-pages branch</li>
+</ul>
+<pre class="sh"><code>$ git checkout -b gh-pages upstream/gh-pages</code></pre>
+<ul>
+<li>Go back into the master branch</li>
+<li>Commit any changes to the documentation in /docs</li>
+<li>with Pandoc and Make installed, run:</li>
+</ul>
+<pre class="sh"><code>$ make publish # Generates the html versions of the docs, commits and pushes the gh-pages branch</code></pre>
+<ul>
+<li>Create a pull request from your gh-pages branch to the upstream gh-pages branch.</li>
+</ul>
 <div class="references">
 <p>1. Plaintext papers please. Available at: <a href="http://kieranhealy.org/blog/archives/2014/01/23/plain-text/" class="uri">http://kieranhealy.org/blog/archives/2014/01/23/plain-text/</a>.</p>
 <p>2. Coombs JH, Renear AH, DeRose SJ. Markup systems and the future of scholarly text processing. <em>Commun ACM</em> 1987;30:933–947. Available at: <a href="http://doi.acm.org/10.1145/32206.32209" class="uri">http://doi.acm.org/10.1145/32206.32209</a>.</p>
