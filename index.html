@@ -21,8 +21,16 @@
 <nav id="TOC">
 <ul>
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#running-the-mimir-docker-container">Running the Mimir Docker Container</a></li>
-<li><a href="#provenence">Provenence</a></li>
+<li><a href="#running-a-mimir-instance">Running a Mimir Instance</a></li>
+<li><a href="#running-the-old-linked-data-demo-standalone">Running the old Linked Data Demo Standalone</a></li>
+<li><a href="#architecture">Architecture</a><ul>
+<li><a href="#engineering-versus-office-model-of-document-production">Engineering versus office model of document production</a></li>
+<li><a href="#plain-text">Plain-text</a></li>
+</ul></li>
+<li><a href="#provenance-from-git">Provenance from git</a><ul>
+<li><a href="#what-is-provenance">What is Provenance?</a></li>
+<li><a href="#provenance-extraction-from-version-control">Provenance extraction from version control</a></li>
+</ul></li>
 </ul>
 </nav>
 
@@ -30,7 +38,7 @@
 <h2 id="introduction">Introduction</h2>
 <p>Mímir is a Semantic Content Pipeline. Markdown goes in, metadata and semantic information is extracted and this then forms a knowledge base</p>
 <p>TODO - Mímir - Semantic Content Pipeline</p>
-<h2 id="running-the-mimir-docker-container">Running the Mimir Docker Container</h2>
+<h2 id="running-a-mimir-instance">Running a Mimir Instance</h2>
 <p>To use Mimir you need to run and link the old linked data demo - this is used as a source of linked data.</p>
 <p>To begin, pull the olddemo image.</p>
 <pre class="sh"><code>$ docker pull nice/olddemo</code></pre>
@@ -48,13 +56,94 @@
 </ul>
 <p>To connect to the Mimir instance, you need the docker host ip address. On Mac OS X, this is:</p>
 <pre class="sh"><code>$boot2docker ip</code></pre>
-<p>You can then navigate to (in this example’s case) http://${DOCKER_HOST}:3424 and you’re done. ## Mímir Architecture</p>
-<p>Featuring Owldin, the friendly neighbourhood data service.</p>
-<p>TO DO</p>
-<h1 id="provenence">Provenence</h1>
-<p>Provenence</p>
-<div class="references">
+<p>You can then navigate to (in this example’s case) http://${DOCKER_HOST}:3424 and you’re done.</p>
+<h2 id="running-the-old-linked-data-demo-standalone">Running the old Linked Data Demo Standalone</h2>
+<p>Assuming you have a docker host (boot2docker for example), the process for installing the container:</p>
+<pre class="sh"><code>$ docker pull nice/olddemo</code></pre>
+<p>And then running:</p>
+<pre class="sh"><code>$ docker run nice/olddemo</code></pre>
+<p>To find the IP address (the ${DOCKER_HOST}) run:</p>
+<pre class="sh"><code>$ boot2docker ip</code></pre>
+<p>Then you can navigate to http://${DOCKER_HOST}/index.html</p>
+<p>That’s it!</p>
+<h1 id="architecture">Architecture</h1>
+<p>abstract: | Plain-text files and a modern version control system can be used to create a content repository and publishing pipeline. Version control history can be translated into standard compliant W3C provenance graphs. Semantics can be embedded in plain-text content directly, inferred from structure or stored as annotations. Print quality documents and web content can be producted from semantic data as the version control system is updated.</p>
+<p>…</p>
+<h2 id="engineering-versus-office-model-of-document-production">Engineering versus office model of document production</h2>
+<p>It is possible to separate approaches to collaboratively constructing documents into two camps<span class="citation" data-cites="Plaintext_Please"><sup>1</sup></span> - the office model and the engineering model. The office model is familiar to most people; a set of tools centered around a word processor and a number of large files are the center of their work. Changes to this work are tracked inside these large files and in various ad-hoc ways. Concurrent editing is difficult unless authors are in the same room and merging changes between different groups working concurrently is usually a manual process. The final output is usually the word processor file without change tracking data, possibly transliterated to formats more suitable for print or web.</p>
+<p>In the engineering model, a larger number of plaintext files and a version control system become the center of the project along with a larger suite of more specific tools than a word processor. Changes to these files are tracked externally, in the version control system. Plain text formats are used because of the relative ease of determining the differences between two versions of the same text. Transformation of plain-text is usually performed by different tools than those used for editing it.</p>
+<h2 id="plain-text">Plain-text</h2>
+<p>Files that contain markup or other data are generally considered plain-text, as long as the entirety remains in directly human-readable form. Markup formats such as HTML and markdown are also plain-text as Coombs, Renear, and DeRose argue<span class="citation" data-cites="Coombs:1987:MSF:32206.32209"><sup>2</sup></span>, punctuation is itself markup. A binary file (such as a JPEG image or a Word Document) is a sequence of bytes which requires interpretation before it can be understood by humans. Some rich text formats such as Microsoft Word’s .xdoc are superficially plain-text but are probably better classed as text encoded binary formats as very few humans would be able to make sense of such a document without the application that renders it.</p>
+<p>A consideration when choosing between plain-text formats is the ease of resolving conflicts when multiple agents are collaborating on changes to a single file. Line and character oriented differencing algorithms are efficient and well understood. Differencing rich text formats that have structures that span multiple lines such as HTML or XML is more complex. Using textual differencing on these can produce invalid results and relies on users having knowledge of the format to resolve problems. These same constrains apply to the operational transformation algorithms<span class="citation" data-cites="Sun98operationaltransformation"><sup>3</sup></span> that collaborative real-time editors use.</p>
+<h1 id="provenance-from-git">Provenance from git</h1>
+<h2 id="what-is-provenance">What is Provenance?</h2>
+<blockquote>
+<p>Provenance is information about entities, activities, and people involved in producing a piece of data or thing, which can be used to form assessments about its quality, reliability or trustworthiness<span class="citation" data-cites="McGuinness:13:PTP"><sup>4</sup></span>.</p>
+</blockquote>
+<p>Provenance is particularly important to the semantic web community as they need to track the complicated web of trust between linked data sources. To meet these needs, the W3C published the PROV standard.</p>
+<p>The PROV data model supports the following:</p>
+<ul>
+<li>The core concepts of identifying an object, attributing the object to person or entity, and representing processing steps</li>
+<li>Accessing provenance-related information expressed in other standards</li>
+<li>Accessing provenance</li>
+<li>The provenance of provenance</li>
+<li>Reproducibility</li>
+<li>Versioning</li>
+<li>Representing procedures</li>
+<li>Representing derivation</li>
+</ul>
+<h2 id="provenance-extraction-from-version-control">Provenance extraction from version control</h2>
+<p>The Git2Prov project<span class="citation" data-cites="denies_iswc_2013"><sup>5</sup></span> demonstrates a model for extracting PROV from a git repository. A altered version of this model is presented here that demonstrates the core concepts.</p>
+<p>A git repository can be viewed as a sequence of linked commits. Each commit contains the complete repository state at that point and has a unique hash code along with metadata describing the change and identifying the users involved. A diff can be created for any pair of commits that will show altered, added, renamed and copied files.</p>
+<p>Our process to translate git into W3C PROV differs slightly from this work (which has a node implementation) and is described here.</p>
+<figure>
+<img src="git.png" alt="Git object structure (c=commit d=diff f=changed files)" /><figcaption>Git object structure (c=commit d=diff f=changed files)</figcaption>
+</figure>
+<p>To translate from this to the PROV data model we use the following process:</p>
+<ul>
+<li><p>A start and end commit are selected using their hash or alias</p></li>
+<li><p>Commits are topologically sorted</p></li>
+<li><p>Commits are grouped into pairs for differencing from the most current to oldest with the oldest commit compared against the empty commit <span class="math"><em>ϵ</em></span>. This produces a sequence of commit pairs:</p></li>
+</ul>
+<p><br /><span class="math">(<em>c</em><sub><em>n</em></sub>, <em>c</em><sub><em>n</em> − 1</sub>)…(<em>c</em><sub>0</sub>, <em>ϵ</em>)</span><br /></p>
+<ul>
+<li>A diff is taken between each commit in a pair and associated with the first commit in the pair producing:</li>
+</ul>
+<p><br /><span class="math">(<em>c</em><sub><em>n</em></sub>, <em>d</em>(<em>c</em><sub><em>n</em></sub>, <em>c</em><sub><em>n</em> − 1</sub>))…(<em>c</em><sub>0</sub>, <em>d</em>(<em>c</em><sub>0</sub>, <em>ϵ</em>))</span><br /></p>
+<ul>
+<li>Each diff / commit pair is then processed into statements that can be appended to a provenance graph. The commit pairs are then processed into triples as follows:</li>
+</ul>
+<p>For the commit:</p>
+<pre class="ttl"><code>
+vcs:commit-{c.SHAHash} a prov:Activity 
+  rdfs:label &#39;{c.CommitMessage}&#39; ;
+  prov:startedAtTime {c.Author.Time} ;   
+  prov:endedAtTime {c.Commit.Time} ;
+  prov.wasAssociatedWith vcs:git-user-{c.Commit.User} ;  
+  prov.wasInformedBy vcs:commit-{c.Commit.ParentCommit.SHAHash} ;
+  prov.qualifiedAssociation 
+    [
+      a prov:Association ;
+      prov:agent vcs:git-user{c.Commit.User} ;
+      prov:hadRole &quot;author, comitter&quot; ;
+    ]</code></pre>
+<p>For each changed file in the commit:</p>
+<pre class="ttl"><code>
+vcs:file-{f.SHAHash}-{f.FilePath} a prov:Entity,content:ContentAsText ;
+  content:chars {git repository http uri}{f.FilePath}-{f.ShaHash} ;
+  prov:specializationOf {git repository http uri}{f.FilePath} ;
+  prov:wasAttributedTo vcs:git-user-{f.User} ;
+  prov:wasGeneratedBy vcs:commit-{c.SHAHash} ;
 
+
+vcs:commit-{c.SHAHash} prov:uses cs:file-{f.SHAHash}-{f.FilePath} ;
+</code></pre>
+<div class="references">
+<p>1. Plaintext papers please. Available at: <a href="http://kieranhealy.org/blog/archives/2014/01/23/plain-text/" class="uri">http://kieranhealy.org/blog/archives/2014/01/23/plain-text/</a>.</p>
+<p>2. Coombs JH, Renear AH, DeRose SJ. Markup systems and the future of scholarly text processing. <em>Commun ACM</em> 1987;30:933–947. Available at: <a href="http://doi.acm.org/10.1145/32206.32209" class="uri">http://doi.acm.org/10.1145/32206.32209</a>.</p>
+<p>3. Sun C, Ellis C (Skip). Operational transformation in real-time group editors: Issues, algorithms, and achievements. 1998.</p>
+<p>4. McGuinness D, Lebo T, Sahoo S. PROV-o: The PROV ontology. W3C 2013.</p>
+<p>5. De Nies T, Magliacane S, Verborgh R, et al. Git2PROV: Exposing version control system content as W3C PROV. In Poster and demo proceedings of the 12th international semantic web conference. 2013. Available at: <a href="http://www.iswc2013.semanticweb.org/sites/default/files/iswc_demo_32_0.pdf" class="uri">http://www.iswc2013.semanticweb.org/sites/default/files/iswc_demo_32_0.pdf</a>.</p>
 </div>
 </section>
 </body>
