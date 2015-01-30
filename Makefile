@@ -32,7 +32,7 @@ publish: compile
 	mv docs/export/* . ; \
 	git add --all ; \
 	git commit -m "Automated update of gh-pages" ; \
-	git push origin gh-pages ; \
+	git push --force upstream gh-pages ; \
 	git checkout master; \
 	git stash pop
 
