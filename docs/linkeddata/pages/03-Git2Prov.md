@@ -1,5 +1,3 @@
-# Provenance from git
-
 ## What is Provenance?
 
 >Provenance is information about entities, activities, and people involved in producing a piece of data or thing, which can be used to form assessments about its quality, reliability or trustworthiness [@McGuinness:13:PTP].
@@ -76,3 +74,28 @@ vcs:file-{f.SHAHash}-{f.FilePath} a prov:Entity,content:ContentAsText ;
 vcs:commit-{c.SHAHash} prov:uses cs:file-{f.SHAHash}-{f.FilePath} ;
 
 ~~~~
+
+
+## URI generation
+
+Handily, git SHA hashes are generated to identify every unique object in git - commits, individual file versions etc. Git also has the ability to generate shortened versions of the long encoded hash strings. We can also use base62 encoding to shorten them further if required.
+
+### On short hash length
+
+>Generally, eight to ten characters are more than enough to be unique within a project. One of the largest Git projects, the Linux kernel, is beginning to need 12 characters out of the possible 40 to stay unique.
+
+So, initial hash length selection is important. We can come up with a strategy to deal with collisions in the future and git will tell us when our hash length is no longer unique.
+
+### Dereferencability 
+
+Git content ids (vcs:file) should be dereferencable, either by representing the content as a property of the uri, or through the use of a service that can resolve them to the text they represent (see github raw URLs for reference). Provenance will be used as input to the resource compiler, so it needs to be able to simply access the content that the provenance graph refers to.
+
+
+### Resource URI generation
+
+The 'prov:specialisationOf' property is a URI that represents the resource at any version, so it is vital that we can compute the same URI with different git histories. So we cannot use a git object hash. We also cannot use an identity generation process (such as guid/uuid tricks) external to git, as this violates our idempotency requirement. So provisionally we will walk the history of the file, find the first commit and take a hash of its path and file name. 
+
+
+
+
+
