@@ -25,7 +25,7 @@ A git repository can be viewed as a sequence of linked commits. Each commit cont
 
 Our process to translate git into W3C PROV differs slightly from this work (which has a node implementation) and is described here.
 
-![Git object structure (c=commit d=diff f=changed files)](git.png)
+![Git object structure (c=commit d=diff f=changed files)](images/git.png)
 
 To translate from this to the PROV data model we use the following process:
 
