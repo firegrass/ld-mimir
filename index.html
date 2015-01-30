@@ -20,7 +20,17 @@
 </header>
 <nav id="TOC">
 <ul>
-<li><a href="#introduction">Introduction</a></li>
+<li><a href="#so-what-is-it">So what is it?</a></li>
+<li><a href="#so-what-is-it-1">So what is it?</a></li>
+<li><a href="#so-what-is-it-2">So what is it?</a><ul>
+<li><a href="#a-web-based-integrated-development-environment">A web based Integrated Development Environment</a></li>
+<li><a href="#a-version-control-system">A version control system</a></li>
+<li><a href="#a-compiler">A compiler</a></li>
+<li><a href="#a-collaboration-and-project-management-site">A collaboration and project management site</a></li>
+<li><a href="#a-continuous-integration-process">A continuous integration process</a></li>
+<li><a href="#orchestration-to-manage-development-and-ci-environments-without-admin-overhead">Orchestration to manage development and CI environments without admin overhead</a></li>
+</ul></li>
+<li><a href="#what-you-should-probably-read-before-working-on-this-project">What you should probably read before working on this project</a></li>
 <li><a href="#running-a-mimir-instance">Running a Mimir Instance</a></li>
 <li><a href="#running-the-old-linked-data-demo-standalone">Running the old Linked Data Demo Standalone</a></li>
 <li><a href="#architecture">Architecture</a><ul>
@@ -40,9 +50,28 @@
 </nav>
 
 <section class="main">
-<h2 id="introduction">Introduction</h2>
-<p>Mímir is a Semantic Content Pipeline. Markdown goes in, metadata and semantic information is extracted and this then forms a knowledge base</p>
-<p>TODO - Mímir - Semantic Content Pipeline</p>
+<h2 id="so-what-is-it">So what is it?</h2>
+<p>We are building a set of tools that can be used together to create and maintain a semantic knowledge base and derived works.</p>
+<h2 id="so-what-is-it-1">So what is it?</h2>
+<p>Plain-text files and a modern version control system can be used to create a content repository and publishing pipeline. Version control history can be translated into standard compliant W3C provenance graphs. Semantics can be embedded in plain-text content directly, inferred from structure, extracted using natural language processing or stored as annotations. Print quality documents and web content can be produced from semantic data as the version control system is updated.</p>
+<h2 id="so-what-is-it-2">So what is it?</h2>
+<p>We are going to try to use similar tools and processes to those we use as developers to produce software to enable NICE to produce semantic content.</p>
+<h3 id="a-web-based-integrated-development-environment">A web based Integrated Development Environment</h3>
+<figure>
+<img src="editor.png" alt="Editor" /><figcaption>Editor</figcaption>
+</figure>
+<h3 id="a-version-control-system">A version control system</h3>
+<p>Git.</p>
+<h3 id="a-compiler">A compiler</h3>
+<p>Translates plain-text files into an OWL2 knowledge base. This can be syndicated directly and translated into web / pdf / ebook / etc content.</p>
+<h3 id="a-collaboration-and-project-management-site">A collaboration and project management site</h3>
+<p><a href="http://gitlab.com">Gitlab</a> A github clone we can run behind the firewall.</p>
+<h3 id="a-continuous-integration-process">A continuous integration process</h3>
+<p>Probably based around <a href="http://drone.io">drone</a></p>
+<h3 id="orchestration-to-manage-development-and-ci-environments-without-admin-overhead">Orchestration to manage development and CI environments without admin overhead</h3>
+<p>Environments will be executed in <a href="http://docker.io">docker</a>. This makes creation and update of large numbers of instances of the editor and tool chain possible. It also means we need to deploy to Linux, not windows.</p>
+<h2 id="what-you-should-probably-read-before-working-on-this-project">What you should probably read before working on this project</h2>
+<p>Many of the technologies used are likely to be unfamiliar to people with a background in ASP/.NET. Semantic web technology hasn’t seen much use in the .NET world at all; mostly it’s from Java land and used by specialists.</p>
 <h2 id="running-a-mimir-instance">Running a Mimir Instance</h2>
 <p>To use Mimir you need to run and link the old linked data demo - this is used as a source of linked data.</p>
 <p>To begin, pull the olddemo image.</p>
@@ -72,9 +101,6 @@
 <p>Then you can navigate to http://${DOCKER_HOST}/index.html</p>
 <p>That’s it!</p>
 <h1 id="architecture">Architecture</h1>
-<blockquote>
-<p>Plain-text files and a modern version control system can be used to create a content repository and publishing pipeline. Version control history can be translated into standard compliant W3C provenance graphs. Semantics can be embedded in plain-text content directly, inferred from structure or stored as annotations. Print quality documents and web content can be producted from semantic data as the version control system is updated.</p>
-</blockquote>
 <h2 id="engineering-versus-office-model-of-document-production">Engineering versus office model of document production</h2>
 <p>It is possible to separate approaches to collaboratively constructing documents into two camps<span class="citation" data-cites="Plaintext_Please"><sup>1</sup></span> - the office model and the engineering model. The office model is familiar to most people; a set of tools centered around a word processor and a number of large files are the center of their work. Changes to this work are tracked inside these large files and in various ad-hoc ways. Concurrent editing is difficult unless authors are in the same room and merging changes between different groups working concurrently is usually a manual process. The final output is usually the word processor file without change tracking data, possibly transliterated to formats more suitable for print or web.</p>
 <p>In the engineering model, a larger number of plaintext files and a version control system become the center of the project along with a larger suite of more specific tools than a word processor. Changes to these files are tracked externally, in the version control system. Plain text formats are used because of the relative ease of determining the differences between two versions of the same text. Transformation of plain-text is usually performed by different tools than those used for editing it.</p>

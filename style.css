@@ -188,11 +188,6 @@ p.caption {
 }
 
 p {
-    margin-top: -0.2em;
-    margin-bottom: 0
-}
-
-p+p {
     text-indent: 2em;
     margin-top: 0
 }
