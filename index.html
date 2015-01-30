@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="generator" content="pandoc">
-  <title>Mímir: Semantic Content Pipeline</title>
+  <title>Mínir: Semantic Content Pipeline</title>
   <style type="text/css">code{white-space: pre;}</style>
   <link rel="stylesheet" type="text/css" href="style.css">
   <!--[if lt IE 9]>
@@ -13,7 +13,7 @@
 <body>
 <header>
 
-<h1 class="title">Mímir: Semantic Content Pipeline</h1>
+<h1 class="title">Mínir: Semantic Content Pipeline</h1>
 
 
 
@@ -21,40 +21,18 @@
 <nav id="TOC">
 <ul>
 <li><a href="#introduction">Introduction</a></li>
-<li><a href="#running-the-mimir-docker-container">Running the Mimir Docker Container</a></li>
-<li><a href="#mímir-architecture">Mímir Architecture</a></li>
-<li><a href="#developing">Developing</a></li>
+<li><a href="#building">Building</a></li>
+<li><a href="#mínir-architecture">Mínir Architecture</a></li>
 </ul>
 </nav>
 
 <section class="main">
 <h2 id="introduction">Introduction</h2>
-<p>Mímir is a Semantic Content Pipeline. Markdown goes in, metadata and semantic information is extracted and this then forms a knowledge base</p>
-<p>TODO - Mímir - Semantic Content Pipeline</p>
-<h2 id="running-the-mimir-docker-container">Running the Mimir Docker Container</h2>
-<p>To use Mimir you need to run and link the old linked data demo - this is used as a source of linked data.</p>
-<p>To begin, pull the olddemo image.</p>
-<pre class="sh"><code>$ docker pull nice/olddemo</code></pre>
-<p>Now we need to run it and give it a name. This name is important, so please use ‘olddemo’</p>
-<pre class="sh"><code>$ docker run --name olddemo nice/olddemo</code></pre>
-<p>Next we pull the Mimir image</p>
-<pre class="sh"><code>$ docker pull nice/mimir</code></pre>
-<p>Now we need to run mimir. To do this we need to map a directory, forward a port and link to the ‘olddata’ image.</p>
-<pre class="sh"><code>$ docker run --link olddemo:olddemo -v ~/my-project-files:/tmp -p 3424:80 --name mimir nice/mimir</code></pre>
-<p>This command:</p>
-<ul>
-<li>forwards port 80 of the docker container to port 3424.</li>
-<li>maps the local folder ~/my-project-files to /tmp in the container. This is the folder mimir will use.</li>
-<li>creates a link to olddemo. This generates a bunch of environment variables used by mimir.</li>
-</ul>
-<p>To connect to the Mimir instance, you need the docker host ip address. On Mac OS X, this is:</p>
-<pre class="sh"><code>$boot2docker ip</code></pre>
-<p>You can then navigate to (in this example’s case) http://${DOCKER_HOST}:3424 and you’re done.</p>
-<h2 id="mímir-architecture">Mímir Architecture</h2>
+<p>This is where the introduction to the project would go</p>
+<h2 id="building">Building</h2>
+<p>Mindblowing stuff involving docker</p>
+<h2 id="mínir-architecture">Mínir Architecture</h2>
 <p>Featuring Owldin, the friendly neighbourhood data service.</p>
-<p>TO DO</p>
-<h2 id="developing">Developing</h2>
-<p>TO DO</p>
 </section>
 </body>
 </html>

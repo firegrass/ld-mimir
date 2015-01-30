@@ -1,0 +1,6 @@
+[submodule "src/gore.io"]
+	path = src/gore.io
+	url = https://github.com/CharlotteGore/gore.io.git
+[submodule "lib/libgit2sharp"]
+	path = lib/libgit2sharp
+	url = https://github.com/libgit2/libgit2sharp.git
