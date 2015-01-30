@@ -20,7 +20,10 @@
 </header>
 <nav id="TOC">
 <ul>
-<li><a href="#so-what-is-it">So what is it?</a></li>
+<li><a href="#so-what-is-it">So what is it?</a><ul>
+<li><a href="#engineering-versus-office-model-of-document-production">Engineering versus office model of document production</a></li>
+<li><a href="#plain-text">Plain-text</a></li>
+</ul></li>
 <li><a href="#so-what-is-it-1">So what is it?</a></li>
 <li><a href="#so-what-is-it-2">So what is it?</a><ul>
 <li><a href="#a-web-based-integrated-development-environment">A web based Integrated Development Environment</a></li>
@@ -34,8 +37,8 @@
 <li><a href="#running-a-mimir-instance">Running a Mimir Instance</a></li>
 <li><a href="#running-the-old-linked-data-demo-standalone">Running the old Linked Data Demo Standalone</a></li>
 <li><a href="#architecture">Architecture</a><ul>
-<li><a href="#engineering-versus-office-model-of-document-production">Engineering versus office model of document production</a></li>
-<li><a href="#plain-text">Plain-text</a></li>
+<li><a href="#engineering-versus-office-model-of-document-production-1">Engineering versus office model of document production</a></li>
+<li><a href="#plain-text-1">Plain-text</a></li>
 <li><a href="#what-is-provenance">What is Provenance?</a></li>
 <li><a href="#provenance-extraction-from-version-control">Provenance extraction from version control</a></li>
 <li><a href="#uri-generation">URI generation</a><ul>
@@ -51,13 +54,19 @@
 <section class="main">
 <h2 id="so-what-is-it">So what is it?</h2>
 <p>We are building a set of tools that can be used together to create and maintain a semantic knowledge base and derived works.</p>
+<h3 id="engineering-versus-office-model-of-document-production">Engineering versus office model of document production</h3>
+<p>It is possible to separate approaches to collaboratively constructing documents into two camps<span class="citation" data-cites="Plaintext_Please"><sup>1</sup></span> - the office model and the engineering model. The office model is familiar to most people; a set of tools centered around a word processor and a number of large files are the center of their work. Changes to this work are tracked inside these large files and in various ad-hoc ways. Concurrent editing is difficult unless authors are in the same room and merging changes between different groups working concurrently is usually a manual process. The final output is usually the word processor file without change tracking data, possibly transliterated to formats more suitable for print or web.</p>
+<p>In the engineering model, a larger number of plaintext files and a version control system become the center of the project along with a larger suite of more specific tools than a word processor. Changes to these files are tracked externally, in the version control system. Plain text formats are used because of the relative ease of determining the differences between two versions of the same text. Transformation of plain-text is usually performed by different tools than those used for editing it.</p>
+<h3 id="plain-text">Plain-text</h3>
+<p>Files that contain markup or other data are generally considered plain-text, as long as the entirety remains in directly human-readable form. Markup formats such as HTML and markdown are also plain-text as Coombs, Renear, and DeRose argue<span class="citation" data-cites="Coombs:1987:MSF:32206.32209"><sup>2</sup></span>, punctuation is itself markup. A binary file (such as a JPEG image or a Word Document) is a sequence of bytes which requires interpretation before it can be understood by humans. Some rich text formats such as Microsoft Word’s .xdoc are superficially plain-text but are probably better classed as text encoded binary formats as very few humans would be able to make sense of such a document without the application that renders it.</p>
+<p>A consideration when choosing between plain-text formats is the ease of resolving conflicts when multiple agents are collaborating on changes to a single file. Line and character oriented differencing algorithms are efficient and well understood. Differencing rich text formats that have structures that span multiple lines such as HTML or XML is more complex. Using textual differencing on these can produce invalid results and relies on users having knowledge of the format to resolve problems. These same constrains apply to the operational transformation algorithms<span class="citation" data-cites="Sun98operationaltransformation"><sup>3</sup></span> that collaborative real-time editors use.</p>
 <h2 id="so-what-is-it-1">So what is it?</h2>
 <p>Plain-text files and a modern version control system can be used to create a content repository and publishing pipeline. Version control history can be translated into standard compliant W3C provenance graphs. Semantics can be embedded in plain-text content directly, inferred from structure, extracted using natural language processing or stored as annotations. Print quality documents and web content can be produced from semantic data as the version control system is updated.</p>
 <h2 id="so-what-is-it-2">So what is it?</h2>
 <p>We are going to try to use similar tools and processes to those we use as developers to produce software to enable NICE to produce semantic content.</p>
 <h3 id="a-web-based-integrated-development-environment">A web based Integrated Development Environment</h3>
 <figure>
-<img src="editor.png" alt="Editor" /><figcaption>Editor</figcaption>
+<img src="images/editor.png" alt="Editor" /><figcaption>Editor</figcaption>
 </figure>
 <h3 id="a-version-control-system">A version control system</h3>
 <p>Git.</p>
@@ -100,10 +109,10 @@
 <p>Then you can navigate to http://${DOCKER_HOST}/index.html</p>
 <p>That’s it!</p>
 <h1 id="architecture">Architecture</h1>
-<h2 id="engineering-versus-office-model-of-document-production">Engineering versus office model of document production</h2>
+<h2 id="engineering-versus-office-model-of-document-production-1">Engineering versus office model of document production</h2>
 <p>It is possible to separate approaches to collaboratively constructing documents into two camps<span class="citation" data-cites="Plaintext_Please"><sup>1</sup></span> - the office model and the engineering model. The office model is familiar to most people; a set of tools centered around a word processor and a number of large files are the center of their work. Changes to this work are tracked inside these large files and in various ad-hoc ways. Concurrent editing is difficult unless authors are in the same room and merging changes between different groups working concurrently is usually a manual process. The final output is usually the word processor file without change tracking data, possibly transliterated to formats more suitable for print or web.</p>
 <p>In the engineering model, a larger number of plaintext files and a version control system become the center of the project along with a larger suite of more specific tools than a word processor. Changes to these files are tracked externally, in the version control system. Plain text formats are used because of the relative ease of determining the differences between two versions of the same text. Transformation of plain-text is usually performed by different tools than those used for editing it.</p>
-<h2 id="plain-text">Plain-text</h2>
+<h2 id="plain-text-1">Plain-text</h2>
 <p>Files that contain markup or other data are generally considered plain-text, as long as the entirety remains in directly human-readable form. Markup formats such as HTML and markdown are also plain-text as Coombs, Renear, and DeRose argue<span class="citation" data-cites="Coombs:1987:MSF:32206.32209"><sup>2</sup></span>, punctuation is itself markup. A binary file (such as a JPEG image or a Word Document) is a sequence of bytes which requires interpretation before it can be understood by humans. Some rich text formats such as Microsoft Word’s .xdoc are superficially plain-text but are probably better classed as text encoded binary formats as very few humans would be able to make sense of such a document without the application that renders it.</p>
 <p>A consideration when choosing between plain-text formats is the ease of resolving conflicts when multiple agents are collaborating on changes to a single file. Line and character oriented differencing algorithms are efficient and well understood. Differencing rich text formats that have structures that span multiple lines such as HTML or XML is more complex. Using textual differencing on these can produce invalid results and relies on users having knowledge of the format to resolve problems. These same constrains apply to the operational transformation algorithms<span class="citation" data-cites="Sun98operationaltransformation"><sup>3</sup></span> that collaborative real-time editors use.</p>
 <h2 id="what-is-provenance">What is Provenance?</h2>
