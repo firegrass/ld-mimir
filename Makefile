@@ -23,7 +23,7 @@ PANDOC_OPT = -r simple_tables+table_captions+yaml_metadata_block+tex_math_dollar
 compile:
 	pandoc $(PANDOC_OPT) --csl=$(TEMPLATES)nice.csl  --bibliography=$(PROJECT_DIR)cites.bibtex --template=$(TEMPLATES)html.template -t html5 $(MARKDOWN) -o $(BUILD)index.html; 
 
-publish: 
+publish: compile 
 	-git stash ; \
 	git stash ; \
 	git checkout gh-pages ; \
