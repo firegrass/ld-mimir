@@ -48,7 +48,11 @@ all: html publish npm
 =======
 publish: 
 	-git stash ; \
+<<<<<<< Updated upstream:Makefile.orig
 	pandoc $(PANDOC_OPT) --template=$(TEMPLATES)/html.template -t html5 $(MARKDOWN) -o $(BUILD)/index.html; \
+=======
+	pandoc $(PANDOC_OPT) --csl=$(TEMPLATES)/nice.csl  --bibliography=$(PROJECT_DIR)/cites.bibtex --template=$(TEMPLATES)/html.template -t html5 $(MARKDOWN) -o $(BUILD)/index.html; \
+>>>>>>> Stashed changes:Makefile
 	git stash ; \
 	git checkout gh-pages ; \
 	git checkout master -- docs/export ; \
