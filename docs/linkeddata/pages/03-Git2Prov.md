@@ -23,14 +23,7 @@ A git repository can be viewed as a sequence of linked commits. Each commit cont
 
 Our process to translate git into W3C PROV differs slightly from this work (which has a node implementation) and is described here.
 
-## Desired behaviour
-
-The generated provenance should be a idempotent injective transformation of the git object database. Generation of provenance from a database should always produce the same provenance, no matter how many times it is executed. This is critical as the linked data project is a distributed system, with many clones of the content repository. 
-
-
-## Translation
-
-![Git object structure (c=commit d=diff f=changed files)](git.png)
+![Git object structure (c=commit d=diff f=changed files)](images/git.png)
 
 To translate from this to the PROV data model we use the following process:
 
