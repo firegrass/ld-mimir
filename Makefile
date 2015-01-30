@@ -20,10 +20,11 @@ TEMPLATES = docs/templates/
 clean:
 PANDOC_OPT = -r simple_tables+table_captions+yaml_metadata_block+tex_math_dollars+tex_math_single_backslash -s -S --normalize --smart -f markdown --standalone --toc  
 
+compile:
+	pandoc $(PANDOC_OPT) --csl=$(TEMPLATES)nice.csl  --bibliography=$(PROJECT_DIR)cites.bibtex --template=$(TEMPLATES)html.template -t html5 $(MARKDOWN) -o $(BUILD)index.html; 
 
 publish: 
 	-git stash ; \
-	pandoc $(PANDOC_OPT) --csl=templates/nice.csl  --bibliography=$(PROJECT_DIR)/cites.bibtex --template=$(TEMPLATES)/html.template -t html5 $(MARKDOWN) -o $(BUILD)/index.html; \
 	git stash ; \
 	git checkout gh-pages ; \
 	git checkout master -- docs/export ; \
