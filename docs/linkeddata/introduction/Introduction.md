@@ -36,7 +36,7 @@ We are going to try to use similar tools and processes to those we use as develo
 
 Git. 
 
-### A compiler
+### A compiler / service
 
 Translates plain-text files into an OWL2 knowledge base. This can be syndicated directly and translated into web / pdf / ebook / etc content.
 
@@ -54,4 +54,8 @@ Environments will be executed in [docker](http://docker.io). This makes creation
 
 ## What you should probably read before working on this project
 
-Many of the technologies used are likely to be unfamiliar to people with a background in ASP/.NET. Semantic web technology hasn't seen much use in the .NET world at all; mostly it's from Java land and used by specialists. 
+Many of the technologies used are likely to be unfamiliar to people with a background in ASP/.NET. Semantic web technology hasn't seen much use in the .NET world at all; mostly it's implemented by specialists using Java.
+
+
+
+
