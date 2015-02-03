@@ -28,7 +28,7 @@
 <li><a href="#so-what-is-it-2">So what is it?</a><ul>
 <li><a href="#a-web-based-integrated-development-environment">A web based Integrated Development Environment</a></li>
 <li><a href="#a-version-control-system">A version control system</a></li>
-<li><a href="#a-compiler">A compiler</a></li>
+<li><a href="#a-compiler-service">A compiler / service</a></li>
 <li><a href="#a-collaboration-and-project-management-site">A collaboration and project management site</a></li>
 <li><a href="#a-continuous-integration-process">A continuous integration process</a></li>
 <li><a href="#orchestration-to-manage-development-and-ci-environments-without-admin-overhead">Orchestration to manage development and CI environments without admin overhead</a></li>
@@ -37,8 +37,9 @@
 <li><a href="#running-a-mimir-instance">Running a Mimir Instance</a></li>
 <li><a href="#running-the-old-linked-data-demo-standalone">Running the old Linked Data Demo Standalone</a></li>
 <li><a href="#architecture">Architecture</a><ul>
-<li><a href="#engineering-versus-office-model-of-document-production-1">Engineering versus office model of document production</a></li>
-<li><a href="#plain-text-1">Plain-text</a></li>
+<li><a href="#principles">Principles</a></li>
+<li><a href="#current-technology-selection-in-terms-of-these-principles">Current technology selection in terms of these principles</a></li>
+</ul></li>
 <li><a href="#what-is-provenance">What is Provenance?</a></li>
 <li><a href="#provenance-extraction-from-version-control">Provenance extraction from version control</a></li>
 <li><a href="#uri-generation">URI generation</a><ul>
@@ -47,7 +48,7 @@
 <li><a href="#resource-uri-generation">Resource URI generation</a></li>
 </ul></li>
 <li><a href="#updating-these-docs">Updating these docs</a></li>
-</ul></li>
+<li><a href="#updating-these-docs-1">Updating these docs</a></li>
 </ul>
 </nav>
 
@@ -70,7 +71,7 @@
 </figure>
 <h3 id="a-version-control-system">A version control system</h3>
 <p>Git.</p>
-<h3 id="a-compiler">A compiler</h3>
+<h3 id="a-compiler-service">A compiler / service</h3>
 <p>Translates plain-text files into an OWL2 knowledge base. This can be syndicated directly and translated into web / pdf / ebook / etc content.</p>
 <h3 id="a-collaboration-and-project-management-site">A collaboration and project management site</h3>
 <p><a href="http://gitlab.com">Gitlab</a> A github clone we can run behind the firewall.</p>
@@ -79,7 +80,7 @@
 <h3 id="orchestration-to-manage-development-and-ci-environments-without-admin-overhead">Orchestration to manage development and CI environments without admin overhead</h3>
 <p>Environments will be executed in <a href="http://docker.io">docker</a>. This makes creation and update of large numbers of instances of the editor and tool chain possible. It also means we need to deploy to Linux, not windows.</p>
 <h2 id="what-you-should-probably-read-before-working-on-this-project">What you should probably read before working on this project</h2>
-<p>Many of the technologies used are likely to be unfamiliar to people with a background in ASP/.NET. Semantic web technology hasn’t seen much use in the .NET world at all; mostly it’s from Java land and used by specialists.</p>
+<p>Many of the technologies used are likely to be unfamiliar to people with a background in ASP/.NET. Semantic web technology hasn’t seen much use in the .NET world at all; mostly it’s implemented by specialists using Java.</p>
 <h2 id="running-a-mimir-instance">Running a Mimir Instance</h2>
 <p>To use Mimir you need to run and link the old linked data demo - this is used as a source of linked data.</p>
 <p>To begin, pull the olddemo image.</p>
@@ -108,13 +109,41 @@
 <pre class="sh"><code>$ boot2docker ip</code></pre>
 <p>Then you can navigate to http://${DOCKER_HOST}/index.html</p>
 <p>That’s it!</p>
-<h1 id="architecture">Architecture</h1>
-<h2 id="engineering-versus-office-model-of-document-production-1">Engineering versus office model of document production</h2>
-<p>It is possible to separate approaches to collaboratively constructing documents into two camps<span class="citation" data-cites="Plaintext_Please"><sup>1</sup></span> - the office model and the engineering model. The office model is familiar to most people; a set of tools centered around a word processor and a number of large files are the center of their work. Changes to this work are tracked inside these large files and in various ad-hoc ways. Concurrent editing is difficult unless authors are in the same room and merging changes between different groups working concurrently is usually a manual process. The final output is usually the word processor file without change tracking data, possibly transliterated to formats more suitable for print or web.</p>
-<p>In the engineering model, a larger number of plaintext files and a version control system become the center of the project along with a larger suite of more specific tools than a word processor. Changes to these files are tracked externally, in the version control system. Plain text formats are used because of the relative ease of determining the differences between two versions of the same text. Transformation of plain-text is usually performed by different tools than those used for editing it.</p>
-<h2 id="plain-text-1">Plain-text</h2>
-<p>Files that contain markup or other data are generally considered plain-text, as long as the entirety remains in directly human-readable form. Markup formats such as HTML and markdown are also plain-text as Coombs, Renear, and DeRose argue<span class="citation" data-cites="Coombs:1987:MSF:32206.32209"><sup>2</sup></span>, punctuation is itself markup. A binary file (such as a JPEG image or a Word Document) is a sequence of bytes which requires interpretation before it can be understood by humans. Some rich text formats such as Microsoft Word’s .xdoc are superficially plain-text but are probably better classed as text encoded binary formats as very few humans would be able to make sense of such a document without the application that renders it.</p>
-<p>A consideration when choosing between plain-text formats is the ease of resolving conflicts when multiple agents are collaborating on changes to a single file. Line and character oriented differencing algorithms are efficient and well understood. Differencing rich text formats that have structures that span multiple lines such as HTML or XML is more complex. Using textual differencing on these can produce invalid results and relies on users having knowledge of the format to resolve problems. These same constrains apply to the operational transformation algorithms<span class="citation" data-cites="Sun98operationaltransformation"><sup>3</sup></span> that collaborative real-time editors use.</p>
+<h2 id="architecture">Architecture</h2>
+<h3 id="principles">Principles</h3>
+<p>We are building an editor, compiler pipeline and service plus supporting tools for editorial work flow and project management, very similar to something that could produce executable software. The most successful model for this is not the monolithic Visual Studio or Eclipse, but the Makefiles and composable tools used by almost every other platform. This is a classical UNIX architecture, so we can adapt some of its principles to guide us. All design and implementation should comply with the principles outlined below. Any requirement that cannot be implemented without violation of one of more of these principles should be carefully considered.</p>
+<p>Consider this a kind of constitution for the development of the system. A net for agile tennis.</p>
+<h4 id="isolation">Isolation</h4>
+<p>Each editing and compilation environment should be isolated from others.</p>
+<h4 id="version-control-and-plain-text-representation">Version control and plain text representation</h4>
+<p>All input data should be represented as plain text files in a version control system.</p>
+<h4 id="idempotence">Idempotence</h4>
+<p>Operations on data should be repeatable and produce the same results.</p>
+<h4 id="immutability">Immutability</h4>
+<p>Data should be immutable. Building on isolation, version control and idempotence our data can be partitioned by version.</p>
+<h4 id="incremental-computation">Incremental computation</h4>
+<p>Components should only re-process the minimum possible amount of input data.</p>
+<h4 id="ontology-driven">Ontology driven</h4>
+<p>Compilation and editing components should not be coupled to any particular ontology, only their outputs.</p>
+<h3 id="current-technology-selection-in-terms-of-these-principles">Current technology selection in terms of these principles</h3>
+<h4 id="docker">Docker</h4>
+<p>We require side by side deployment of different versions of the editor, compiler and their dependencies. Until the last few years or so, the only real option for doing this sort of thing would be to use virtual machines. Vagrant would allow us to produce virtual machine instances as build outputs from team city that we could deploy to both servers and laptops. This however comes with a number of problems. Virtual machine instances are large binaries, so incremental deployment is resource hungry, as is re/booting applications. There are also numerous issues around versioning virtual machines and managing dependencies between them. Enter Docker.</p>
+<blockquote>
+<p>Docker is an open platform for developers and sysadmins to build, ship, and run distributed applications. Consisting of Docker Engine, a portable, lightweight runtime and packaging tool, and Docker Hub, a cloud service for sharing applications and automating workflows, Docker enables apps to be quickly assembled from components and eliminates the friction between development, QA, and production environments. As a result, IT can ship faster and run the same app, unchanged, on laptops, data center VMs, and any cloud.</p>
+</blockquote>
+<p>Docker provides similar capabilities to building virtual machines using vagrant, but has a number of advantages:</p>
+<ul>
+<li>Portable deployment across machines: you can use Docker to create a single object containing all your bundled applications. This object can then be transferred and quickly installed onto any other Docker-enabled host.</li>
+<li>Versioning: Docker includes git-like capabilities for tracking successive versions of a container, inspecting the diff between versions, committing new versions, rolling back etc.</li>
+<li>Component reuse: Docker allows building or stacking of already created packages. For instance, if you need to create several machines that all require Apache and MySQL database, you can create a ‘base image’ containing these two items, then build and create new machines using these already installed.</li>
+<li>Shared libraries: There is already a public registry (http://index.docker.io/ ) where thousands have already uploaded the useful containers they have created. Again, think of the AWS common pool of different configs and distros – this is very similar.</li>
+<li>Dependencies: Docker can manage dependencies between containers. So an application container that required redis would discover (and potentially automatically deploy and start) the appropriate services as other containers. This allows us to easily create environments (dev, test, live) etc that will manage all their required dependencies</li>
+<li>Incremental deployment: Because of the git-like capabilities deployments use small binary diffs rather than complete images</li>
+<li>No boot time: Containers have little or no initialisation / shutdown overhead as they don’t require a complete operating system. This allows fast hot deployments and failover.</li>
+</ul>
+<p>To use docker containers, our components must run on Linux.</p>
+<h4 id="git">Git</h4>
+<p>To isolate the version control system it needs to be distributed. Our only practical choices are Git, DARCS, Mercurial or Fossil. Fossil has some interesting features, Mercurial handles binaries well, ARCS has a formal definition and a relatively simple design but Git has been chosen because of the availability of workflow solutions such as Gitlab.</p>
 <h2 id="what-is-provenance">What is Provenance?</h2>
 <blockquote>
 <p>Provenance is information about entities, activities, and people involved in producing a piece of data or thing, which can be used to form assessments about its quality, reliability or trustworthiness<span class="citation" data-cites="McGuinness:13:PTP"><sup>4</sup></span>.</p>
@@ -189,6 +218,27 @@ vcs:commit-{c.SHAHash} prov:uses cs:file-{f.SHAHash}-{f.FilePath} ;
 <h3 id="resource-uri-generation">Resource URI generation</h3>
 <p>The ‘prov:specialisationOf’ property is a URI that represents the resource at any version, so it is vital that we can compute the same URI with different git histories. So we cannot use a git object hash. We also cannot use an identity generation process (such as guid/uuid tricks) external to git, as this violates our idempotency requirement. So provisionally we will walk the history of the file, find the first commit and take a hash of its path and file name.</p>
 <h2 id="updating-these-docs">Updating these docs</h2>
+<p>While working on a forked version of Mimir:</p>
+<ul>
+<li>Delete local and remote versions of the <code>gh-pages</code> branch.</li>
+<li>Ensure the <code>nhsevidence/ld-mimir</code> repo is added as a remote, called <code>upstream</code> and make sure your local fork is up to date:</li>
+</ul>
+<pre class="sh"><code>$ git fetch
+$ get rebase upstream/master</code></pre>
+<ul>
+<li>Checkout upstream’s gh-pages branch</li>
+</ul>
+<pre class="sh"><code>$ git checkout -b gh-pages upstream/gh-pages</code></pre>
+<ul>
+<li>Go back into the master branch</li>
+<li>Commit any changes to the documentation in /docs</li>
+<li>with Pandoc and Make installed, run:</li>
+</ul>
+<pre class="sh"><code>$ make publish # Generates the html versions of the docs, commits and pushes the gh-pages branch</code></pre>
+<ul>
+<li>Create a pull request from your gh-pages branch to the upstream gh-pages branch.</li>
+</ul>
+<h2 id="updating-these-docs-1">Updating these docs</h2>
 <p>While working on a forked version of Mimir:</p>
 <ul>
 <li>Delete local and remote versions of the <code>gh-pages</code> branch.</li>
