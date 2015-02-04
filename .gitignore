@@ -186,3 +186,4 @@ docs/content/release-notes.md
 
 # Node byproducts
 node_modules/
+/src/owldin/client-src/.tern-port
