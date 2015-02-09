@@ -6,6 +6,16 @@ var sockRoot = window.location.protocol + "//" + window.location.host + "/comms"
 var broker = new (require('events')).EventEmitter();
 var domify = require('domify');
 var marked = require('marked');
+var Delegate = require('dom-delegate').Delegate;
+
+var $ = document.querySelector.bind(document);
+
+$('body').oncontextmenu = function (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  };
+
 
 var SocksJS = require('./lib/socks.js');
 
@@ -48,8 +58,9 @@ socket.onmessage = function (e){
   }
 
 var editSessions = {};
+var activeDirectory = false;
 var activeSession = false;
-
+var directoryCache = {};
 
 var fileSystemViewElements = {};
 var forEach = Array.prototype.forEach;
@@ -59,10 +70,21 @@ page.position(0,0);
 page.size(window.innerWidth, window.innerHeight);
 page.appendToElement(document.querySelector('body'));
 
+var topMenu = createBox('top-menu');
+topMenu.position(0,0);
+topMenu.size(window.innerWidth, 30);
+
+var topMenuContent = domify([
+  '<ul class="box-inner menu-content">',
+  '<li><span>File</span><ul><li><a href="#" rel="rels/new-file">New file</a></li><li><a href="#" rel="rels/new-folder">New folder</a></li></ul></li>',
+  '</ul>'
+].join('\n'));
+
+topMenu.addElement(topMenuContent);
 
 var fileNavigation = createBox('file-nav');
-fileNavigation.position(0,0);
-fileNavigation.size(301, window.innerHeight);
+fileNavigation.position(0,(topMenu.size().y));
+fileNavigation.size(301, window.innerHeight - topMenu.size().y);
 page.addBox(fileNavigation);
 
 var files = document.createElement('ul');
@@ -71,8 +93,8 @@ fileNavigation.addElement(files);
 
 
 var contentView = createBox('content-view');
-contentView.position(301,0);
-contentView.size(window.innerWidth - 302, window.innerHeight);
+contentView.position(301,(topMenu.size().y));
+contentView.size(window.innerWidth - 302, window.innerHeight - topMenu.size().y);
 page.addBox(contentView);
 
 var content = domify([
@@ -82,7 +104,36 @@ var content = domify([
   '</div>'
 ].join('\n'));
 
+
+
 contentView.addElement(content);
+
+page.addBox(topMenu);
+
+var delegate = new Delegate(document.body);
+
+delegate.on('click', 'ul.menu-content li ul li a', function (e){
+
+  var rel = e.target.getAttribute('rel');
+
+  switch (rel){
+
+    case "rels/new-folder": 
+
+      createFolder(activeDirectory);
+
+      break;
+
+    case "rels/new-file":
+
+      createFile(activeDirectory);
+
+      break;
+
+  }
+
+});
+
 
 function getContentViewSize (){
   var headerHeight = content.querySelector('ul.tabs').offsetHeight;
@@ -136,6 +187,30 @@ function saveSession (){
     })
 
   }
+
+}
+
+function endSession (entity){
+
+  var session = editSessions[entity.href];
+
+  var val = session.editor.getSession().getValue();
+
+  if (val !== session.originalValue){
+    if(!confirm('You will lose changes. Are you sure you wish to quit?')){
+      return;
+
+    }
+  }
+
+  session.editor.destroy();
+  session.tabHeader.parentNode.removeChild(session.tabHeader);
+  session.tab.parentNode.removeChild(session.tab);
+  session.tab = null;
+  session.tabHeader.querySelector('a').onclick = null;
+  session.tabHeader.querySelector('span.typcn-delete').onclick = null;
+  session.tabHeader = null;
+  delete editSessions[entity.href];
 
 }
 
@@ -227,46 +302,191 @@ function makeEditSessionActive (entity){
 
 }
 
-function editFile (entity){
+function editFile (entity, element, event){
 
-  var session;
+  if (!event || (event.which === 1 && event.target.tagName !== "INPUT")){
 
-  if (!editSessions[entity.href]){
-    session = createEditSession(entity);
-  } else {
+    var session;
+
+    if (!editSessions[entity.href]){
+      session = createEditSession(entity);
+    } else {
+      session = editSessions[entity.href];
+    }
+
+    loadFile(entity.href, function (err, response){
+
+      var originalValue = response; 
+      session.originalValue = originalValue;
+      session.editor.setValue(originalValue);
+
+      session.editor.getSession().on('change', function (e){
+        var currentValue = session.editor.getValue();
+        if (currentValue !== originalValue){
+          session.tabHeader.querySelector('a').innerText = session.entity.name + " * " 
+        } else {
+          session.tabHeader.querySelector('a').innerText = session.entity.name
+        }
+      })
+
+      forEach.call(content.querySelectorAll('ul.tab-bodies li'), function (li){
+        li.style.display = 'none';
+      });
+
+      forEach.call(content.querySelectorAll('ul.tabs li.active'), function (li){
+        li.className = li.className.replace('active', '');
+      });
+
+      session.tab.style.display = 'block';
+      session.tabHeader.className += "active";
+
+      activeSession = session;
+
+    });
+
+  } else if (event.which === 3){
+
+    var clickShield = domify('<div></div>');
+    clickShield.style.width = window.innerWidth + "px";
+    clickShield.style.height = window.innerHeight + "px";
+    clickShield.style.position = "absolute";
+    clickShield.style.top = "0px";
+    clickShield.style.left = "0px";
+
+    $('body').appendChild(clickShield);
+
+    var reset = function reset(){
+      clickShield.removeEventListener('click', reset);
+      $('body').removeChild(clickShield);
+      $('body').removeChild(contextMenu)
+    }
+
+    clickShield.addEventListener('click', reset);
+
+    // right...
+    var contextMenu = domify('<ul class="context-menu">' +
+      '<li><a href="#" rel="rels/rename-file">Rename</a></li>' +
+      '<li><a href="#" rel="rels/delete-file">Delete</a></li>' +
+      '</ul>')
+
+    $('body').appendChild(contextMenu);
+
+    contextMenu.style.top = event.clientY + "px";
+    contextMenu.style.left = event.clientX + "px";
+
+    var del = new Delegate(contextMenu);
+    del.on('click', 'a', function (e){
+      e.preventDefault();
+      reset();
+      //alert(e.target.getAttribute('rel'))
+      switch (e.target.getAttribute('rel')){
+
+        case "rels/open-file" :
+          editFile(entity);
+          break;
+        case "rels/rename-file" : 
+          element.style.display = "none";
+          var input = document.createElement('input')
+          element.parentNode.appendChild(input);
+          input.value = entity.name;
+          input.focus();
+          input.onkeydown = function (e){
+            if (e.which === 13 && input.value !== ""){
+              renameFile (entity, input.value);
+              element.style.display = "";
+              element.parentNode.removeChild(input);
+              input.onkeydown = null;
+              input.onclick = false;
+              input = null;
+
+
+            }
+          }
+          input.onclick = function (e){
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          break;
+        case "rels/delete-file":
+          deleteFile(entity);
+          break;
+      }
+
+    });
+
+  }
+
+}
+
+function renameFile (entity, newName){
+  /*
+    POST is used for various adhoc commands that are useful but don't fit well into the RESTful paradigm. The client sends a JSON body containing the request information.
+
+    Currently this includes:
+
+    {"renameFrom": from} - rename a file from from to target.
+    {"copyFrom": from} - copy a file from from to target.
+    {"linkTo": data} - create a symlink at target containing data.
+  */
+
+  var uri = entity.href.replace(entity.name, newName);
+
+  var oldUri = entity.href.replace(vfsRoot, '');
+
+  var session = false;
+
+  if (editSessions[entity.href]){
     session = editSessions[entity.href];
   }
 
-  loadFile(entity.href, function (err, response){
+  request({ method: 'POST', url : uri, json : { renameFrom : oldUri }}, function (err, response, body){
+    loadDirectory(activeDirectory);
+    if (session){
+      editSessions[uri] = session;
+      editSessions[uri].path = uri;
+      editSessions[entity.href] = null;
+      editSessions[uri].tabHeader.querySelector('a').innerText = newName;
+    }
+  });
+}
 
-    var originalValue = response; 
-    session.originalValue = originalValue;
-    session.editor.setValue(originalValue);
+function renameFolder (currentPath, oldFolderName, newFolderName){
 
-    session.editor.getSession().on('change', function (e){
-      var currentValue = session.editor.getValue();
-      if (currentValue !== originalValue){
-        session.tabHeader.querySelector('a').innerText = session.entity.name + " * " 
-      } else {
-        session.tabHeader.querySelector('a').innerText = session.entity.name
-      }
-    })
+  var uri = currentPath.replace(oldFolderName, newFolderName);
 
-    forEach.call(content.querySelectorAll('ul.tab-bodies li'), function (li){
-      li.style.display = 'none';
-    });
+  var oldUri = currentPath.replace(vfsRoot, '');
 
-    forEach.call(content.querySelectorAll('ul.tabs li.active'), function (li){
-      li.className = li.className.replace('active', '');
-    });
-
-    session.tab.style.display = 'block';
-    session.tabHeader.className += "active";
-
-    activeSession = session;
-
+  request({ method: 'POST', url: uri, json : { renameFrom : oldUri}}, function (err, response, body){
+    loadDirectory(activeDirectory);
   });
 
+
+}
+
+function deleteFile (entity){
+  alert('delete file');
+}
+
+function createFolder (path){
+  request({ method : 'PUT', url : path + "New folder/"}, function (err, response, body){
+    if (!err){
+      loadDirectory(activeDirectory);
+    } else {
+      alert(err);
+    }
+
+  })
+}
+
+function createFile (path){
+  request({ method : 'PUT', url : path + 'Untitled.md', body : ''}, function (err, response, body){
+    if (!err){
+      loadDirectory(activeDirectory);
+
+    } else {
+      alert(err);
+    }
+  })
 }
 
 function createEditSession (entity){
@@ -303,6 +523,12 @@ function createEditSession (entity){
     entity : entity,
     tabHeader : tabHeader
   }
+
+  tabHeader.querySelector('span.typcn-delete').onclick = function (e){
+
+    endSession(entity);
+
+  };
 
   editor.on('change', function (){
 
@@ -537,24 +763,95 @@ function loadFile(path, callback){
   });
 }
 
-function loadDirectory(path){
-  request(path, function (err, response, body){
+function loadDirectory(path, obj, element, event){
 
-    if (!err){
+  if (event && event.which === 3){
 
-      if (response.getResponseHeader('Content-TYpe') === "application/json"){
-        body = JSON.parse(body);
-      }
+    var clickShield = domify('<div></div>');
+    clickShield.style.width = window.innerWidth + "px";
+    clickShield.style.height = window.innerHeight + "px";
+    clickShield.style.position = "absolute";
+    clickShield.style.top = "0px";
+    clickShield.style.left = "0px";
 
-      var reference = getDirectoryReference(path);
-      updateFileSystem(path, body);
-      renderCurrentDirectory(reference);
+    $('body').appendChild(clickShield);
 
-    } else {
-      alert(err);
+    var reset = function reset(){
+      clickShield.removeEventListener('click', reset);
+      $('body').removeChild(clickShield);
+      $('body').removeChild(contextMenu)
     }
 
-  });
+    clickShield.addEventListener('click', reset);
+
+    // right...
+    var contextMenu = domify('<ul class="context-menu">' +
+      '<li><a href="#" rel="rels/rename-folder">Rename</a></li>' +
+      '<li><a href="#" rel="rels/delete-file">Delete</a></li>' +
+      '</ul>')
+
+    $('body').appendChild(contextMenu);
+
+    contextMenu.style.top = event.clientY + "px";
+    contextMenu.style.left = event.clientX + "px";
+
+    var del = new Delegate(contextMenu);
+    del.on('click', 'a', function (e){
+      e.preventDefault();
+
+      reset();
+
+      var rel = e.target.getAttribute('rel');
+
+      switch (rel){
+        case "rels/rename-folder" :
+          element.style.display = "none";
+          var input = document.createElement('input')
+          element.parentNode.appendChild(input);
+          input.value = obj.name;
+          input.focus();
+          input.onkeydown = function (e){
+            if (e.which === 13 && input.value !== ""){
+              renameFolder (path, obj.name, input.value);
+              element.style.display = "";
+              element.parentNode.removeChild(input);
+              input.onkeydown = null;
+              input.onclick = false;
+              input = null;
+
+            }
+          }
+          break;
+
+      }
+
+    });
+
+  } else if (!event || (event.which === 1 && event.target.tagName !== "INPUT")) {
+
+    activeDirectory = path;
+
+    request(path, function (err, response, body){
+
+      if (!err){
+
+        if (response.getResponseHeader('Content-TYpe') === "application/json"){
+          body = JSON.parse(body);
+        }
+
+        directoryCache[activeDirectory] = body;
+
+        var reference = getDirectoryReference(path);
+        updateFileSystem(path, body);
+        renderCurrentDirectory(reference);
+
+      } else {
+        alert(err);
+      }
+
+    });
+
+  }
 }
 
 function getDirectoryReference(path){
@@ -605,6 +902,20 @@ function updateFileSystem(path, entities){
     }
     
   });
+
+  for (var child in pointer.children){
+    if (pointer.children.hasOwnProperty(child)){
+      var exists = false;
+      entities.forEach(function (entity){
+        if (entity.name === child){
+          exists = true;
+        }
+      });
+      if (!exists){
+        delete pointer.children[child];
+      }
+    }
+  }
 }
 
 function renderCurrentDirectory(data){
@@ -635,7 +946,7 @@ function renderCurrentDirectory(data){
       var a = document.createElement('a');
       a.setAttribute('href', '#');
       insertText(a, data.children[child].name);
-      a.onclick = loadDirectory.bind({}, data.children[child].href);
+      li.onmouseup = loadDirectory.bind({}, data.children[child].href, data.children[child], a);
       li.appendChild(domify('<span class="typcn typcn-folder"><span>'))
       li.appendChild(a);
       container.appendChild(li);
@@ -648,7 +959,7 @@ function renderCurrentDirectory(data){
     var a = document.createElement('a');
     a.setAttribute('href', '#');
     insertText(a, entity.name);
-    a.onclick = editFile.bind({}, entity);
+    li.onmouseup = editFile.bind({}, entity, a);
     li.appendChild(domify('<span class="typcn typcn-document-text"><span>'))
     li.appendChild(a);
     container.appendChild(li);
