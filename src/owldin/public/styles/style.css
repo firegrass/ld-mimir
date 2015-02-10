@@ -13,6 +13,12 @@ body {
 .box.file-nav {
   background : #555;
 }
+.box.top-menu {
+  background: #999;
+  box-shadow: 0px 5px 5px rgba(0,0,0,0.2);
+  z-index: 1;
+  color: #000;
+}
 .files {
   margin : 0px;
   list-style: none;
@@ -21,6 +27,8 @@ body {
 }
 .files li {
   padding: 5px 10px;
+  display: flex;
+
 }
 .files li:hover {
   background: #333;
@@ -30,12 +38,14 @@ body {
   text-decoration: none;
   line-height: 1.5;
   margin-left: 5px;
+  outline: none;
 }
 .files li a:hover{
   color : #FFFFFF;
 }
-.content-view {
-
+.files li a::selection {
+    background: #000;
+    color: #fff;
 }
 .content ul.tabs {
   background: #353535;
@@ -114,4 +124,94 @@ line-height: 0.9;
 .ace_recommendation {
   font-style: italic;
   color: #9FCFFF;
+}
+
+.box.top-menu {
+    overflow: visible;
+    background:#dedfdf;
+}
+
+.top-menu ul {
+  text-align: left;
+  display: inline;
+  margin: 0;
+  list-style: none;
+  line-height: 30px;
+  padding: 0;
+
+}
+.top-menu ul li {
+  display: inline-block;
+
+  position: relative;
+  cursor: pointer;
+}
+.top-menu ul li:hover {
+  background: #555;
+  color: #fff;
+}
+.top-menu ul li ul {
+  padding: 0;
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 150px;
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.top-menu ul li ul li { 
+  background: #dedfdf; 
+  display: block; 
+  color: #000;
+  padding: 0px 10px;
+  line-height: 30px;
+}
+.top-menu ul li ul li a{  
+  display: block; 
+  color: #000;
+  text-decoration: none;
+}
+.top-menu ul li ul li:hover { background: #666; color: #dedfdf; }
+.top-menu ul li ul li:hover a {
+     color : #dedfdf;
+}
+.top-menu ul li:hover ul {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+    box-shadow: 0px 5px 5px rgba(0,0,0,0.2);
+}
+
+.top-menu li span {
+    display: inline-block;
+    padding: 0px 10px;
+}
+ul.context-menu {
+    position: absolute;
+    background: #dedede;
+    box-shadow: 0px 5px 5px rgba(0,0,0,0.2);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+ul.context-menu li {
+  background: #dedfdf; 
+  display: block; 
+  color: #000;
+  padding: 0px 10px;
+  line-height: 30px;
+}
+ul.context-menu li a {
+  text-decoration: none;
+  color: #000;
+ 
+}
+
+ul.context-menu li:hover { background: #666; color: #dedfdf; }
+ul.context-menu li:hover a {
+  text-decoration: none;
+  color: #dedfdf;;
+ 
 }
