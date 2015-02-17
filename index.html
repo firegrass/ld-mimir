@@ -47,6 +47,7 @@
 <li><a href="#dereferencability">Dereferencability</a></li>
 <li><a href="#resource-uri-generation">Resource URI generation</a></li>
 </ul></li>
+<li><a href="#knowledgebase-compilation">Knowledgebase compilation</a></li>
 <li><a href="#updating-these-docs">Updating these docs</a></li>
 <li><a href="#updating-these-docs-1">Updating these docs</a></li>
 </ul>
@@ -217,6 +218,30 @@ vcs:commit-{c.SHAHash} prov:uses cs:file-{f.SHAHash}-{f.FilePath} ;
 <p>Git content ids (vcs:file) should be dereferencable, either by representing the content as a property of the uri, or through the use of a service that can resolve them to the text they represent (see github raw URLs for reference). Provenance will be used as input to the resource compiler, so it needs to be able to simply access the content that the provenance graph refers to.</p>
 <h3 id="resource-uri-generation">Resource URI generation</h3>
 <p>The ‘prov:specialisationOf’ property is a URI that represents the resource at any version, so it is vital that we can compute the same URI with different git histories. So we cannot use a git object hash. We also cannot use an identity generation process (such as guid/uuid tricks) external to git, as this violates our idempotency requirement. So provisionally we will walk the history of the file, find the first commit and take a hash of its path and file name.</p>
+<h2 id="knowledgebase-compilation">Knowledgebase compilation</h2>
+<p>To compile incrementally compile the knowledge base we need to:</p>
+<ul>
+<li>Determine what source files have changed since the last compilation</li>
+<li>Snapshot those changes so that further changes do not affect the compilation results</li>
+<li>Run a configurable set of transformations from plaintext to triples on each source file</li>
+<li>Aggregate the newly compiled triples into a graph for insertion</li>
+<li>Determine a sparql delete for the previous version of the compiled resources</li>
+<li>Store these triples as a build output</li>
+</ul>
+<p>Provenance derived from git history can be used as input to a compiler, as it can be a complete description of the content changed between 2 points in time.</p>
+<p>We extend W3C prov a little to support a compilation entity.</p>
+<pre class="omn"><code>
+DataProperty: path
+    Domain: Target
+    Range: string
+
+Class: Compilation
+    SubClassOf: prov:Activity
+
+Class: Target
+    SubClassOf: prov:Entity
+</code></pre>
+<p>This lets us supply paths for each changed file, as well as its content.</p>
 <h2 id="updating-these-docs">Updating these docs</h2>
 <p>While working on a forked version of Mimir:</p>
 <ul>
