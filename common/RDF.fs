@@ -1,4 +1,4 @@
-module RDF
+module RDF =
 
 open VDS.RDF
 open VDS.RDF.Writing
