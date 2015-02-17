@@ -90,7 +90,6 @@ So, initial hash length selection is important. We can come up with a strategy t
 
 Git content ids (vcs:file) should be dereferencable, either by representing the content as a property of the uri, or through the use of a service that can resolve them to the text they represent (see github raw URLs for reference). Provenance will be used as input to the resource compiler, so it needs to be able to simply access the content that the provenance graph refers to.
 
-
 ### Resource URI generation
 
 The 'prov:specialisationOf' property is a URI that represents the resource at any version, so it is vital that we can compute the same URI with different git histories. So we cannot use a git object hash. We also cannot use an identity generation process (such as guid/uuid tricks) external to git, as this violates our idempotency requirement. So provisionally we will walk the history of the file, find the first commit and take a hash of its path and file name. 
