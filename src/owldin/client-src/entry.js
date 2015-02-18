@@ -3,10 +3,43 @@
 var request = require('browser-request');
 var vfsRoot = window.location.protocol + "//" + window.location.host + "/vfs";
 var sockRoot = window.location.protocol + "//" + window.location.host + "/comms"
-var broker = new (require('events')).EventEmitter();
 var domify = require('domify');
 var marked = require('marked');
 var Delegate = require('dom-delegate').Delegate;
+
+
+// application level broker... 
+var app = new (require('events')).EventEmitter();
+
+// layout provider..
+var layout = require('./components/screen.js')()
+
+var console = require('./components/console.js');
+
+// virtual file system...
+var vfs = require('./lib/file-system').initialiseFileSystem(vfsRoot, sockRoot);
+
+// initialise the entity selector. This MUST happen before the first vfs:sync event.
+var entitySelector = require('./components/entity-selector.js')(vfs, app, layout.nav);
+
+// an instance of the editor abstraction..
+var editor = require('./components/editor.js')(layout.editor, layout);
+
+// an edit session manager.
+var sessions = require('./components/sessions.js')(app, vfs, editor, layout.tabs);
+
+// now we want to listen to various signals coming from the entity selector so that we 
+// can actually interact with the system...
+
+
+
+
+
+// the entity selector (or 'file navigation thing' to you and I, but we can't call it that)
+
+
+
+/*
 
 var $ = document.querySelector.bind(document);
 
@@ -105,6 +138,16 @@ var content = domify([
 ].join('\n'));
 
 
+  
+  // doesn't belong here...
+  var topMenuContent = domify([
+    '<ul class="box-inner menu-content">',
+    '<li><span>File</span><ul><li><a href="#" rel="rels/new-file">New file</a></li><li><a href="#" rel="rels/new-folder">New folder</a></li></ul></li>',
+    '</ul>'
+  ].join('\n'));
+
+  topMenu.addElement(topMenuContent);
+  
 
 contentView.addElement(content);
 
@@ -268,14 +311,7 @@ function createAceInstance (element){
   return editor;
 }
 
-function deleteChildren (node){
-  var fn = function (){ this.remove(); this.onclick = null; };
-  var fns = [];
-  forEach.call( node.childNodes , function (node){ 
-    fns.push(fn.bind(node))
-  });
-  forEach.call(fns, function(fn){fn()});
-}
+
 
 function insertText (node, text){
   node.appendChild(document.createTextNode(text));
@@ -419,15 +455,6 @@ function editFile (entity, element, event){
 }
 
 function renameFile (entity, newName){
-  /*
-    POST is used for various adhoc commands that are useful but don't fit well into the RESTful paradigm. The client sends a JSON body containing the request information.
-
-    Currently this includes:
-
-    {"renameFrom": from} - rename a file from from to target.
-    {"copyFrom": from} - copy a file from from to target.
-    {"linkTo": data} - create a symlink at target containing data.
-  */
 
   var uri = entity.href.replace(entity.name, newName);
 
@@ -739,11 +766,6 @@ function createEditSession (entity){
 
     }
 
-    /*
-
-     editor.renderer.scroller.getBoundingClientRect()
-
-    */
 
   });
 
@@ -918,54 +940,7 @@ function updateFileSystem(path, entities){
   }
 }
 
-function renderCurrentDirectory(data){
 
-  var container = files;
-  deleteChildren(container);
-
-  var li = document.createElement('li');
-  var h3 = document.createElement('h3');
-  li.appendChild(h3)
-  insertText(h3, data.name);
-  container.appendChild(li);
-
-  if (data.parent && data.parent.name){
-
-    var li = document.createElement('li');
-    var a = document.createElement('a');
-    li.appendChild(a)
-
-    insertText(a, 'Back up to ' + data.parent.name );
-    a.onclick = loadDirectory.bind({}, data.parent.href);
-    container.appendChild(li);
-  }
-
-  for (var child in data.children){
-    if (data.children.hasOwnProperty(child)){
-      var li = document.createElement('li');
-      var a = document.createElement('a');
-      a.setAttribute('href', '#');
-      insertText(a, data.children[child].name);
-      li.onmouseup = loadDirectory.bind({}, data.children[child].href, data.children[child], a);
-      li.appendChild(domify('<span class="typcn typcn-folder"><span>'))
-      li.appendChild(a);
-      container.appendChild(li);
-    }
-  }
-
-  data.entities.forEach(function (entity){
-
-    var li = document.createElement('li');
-    var a = document.createElement('a');
-    a.setAttribute('href', '#');
-    insertText(a, entity.name);
-    li.onmouseup = editFile.bind({}, entity, a);
-    li.appendChild(domify('<span class="typcn typcn-document-text"><span>'))
-    li.appendChild(a);
-    container.appendChild(li);
-
-  })
-
-}
 
 loadDirectory(fileSystem.children.root.href);
+*/

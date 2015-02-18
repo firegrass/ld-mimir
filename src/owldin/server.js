@@ -6,6 +6,8 @@ var fs = require('fs');
 
 process.title = "gore.io";
 
+// update this
+
 // command line args..
 var projectRoot = process.env.PROJECT_DIR || false;
 var port = process.env.MIMIR_PORT || false;

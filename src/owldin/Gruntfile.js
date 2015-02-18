@@ -21,7 +21,7 @@ module.exports = function (grunt){
         files : [
           'package.json'
         ],
-        tasks : ['develop', 'browserify'],
+        tasks : ['npm-install', 'develop', 'browserify'],
         options : { nospawn : true}
       }
     },

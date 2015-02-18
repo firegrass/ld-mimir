@@ -24,11 +24,25 @@ body {
   list-style: none;
   padding: 0;
 
+  display: flex;
+  flex-direction: column;
 }
 .files li {
-  padding: 5px 10px;
+  /* padding: 5px 10px; */
   display: flex;
 
+  flex-grow: 1;
+}
+li.folder:hover ul {
+  background: #555;
+}
+.files li.folder {
+  flex-direction: column;
+}
+.files li div {
+  flex-direction: row;
+  flex-grow: 1;
+  display: flex;
 }
 .files li:hover {
   background: #333;
@@ -47,37 +61,44 @@ body {
     background: #000;
     color: #fff;
 }
-.content ul.tabs {
+span.typcn.typcn-document-text {
+    margin: 3px 0px 3px 10px;
+}
+
+.files li a {
+    margin: 3px 7px;
+}
+.files ul {
+  padding: 0px;
+}
+
+span.typcn.typcn-folder {
+    margin: 3px 0px 3px 10px;
+}
+.tabs ul.tabs {
   background: #353535;
   display: block;
   padding: 0;
   margin: 0;
   height: 25px;
 }
-.content ul.tabs li {
+.tabs ul.tabs li {
   float: left;
-  padding: 5px;
+  padding: 0px 10px;
   list-style: none;
+  background: #555;
+  box-shadow: inset 0px -5px 6px rgba(0,0,0,0.3);
 }
-.content ul.tabs li.active {
-  background: #777;
+.tabs ul.tabs li.active {
+  background: #272822;
+  box-shadow: none;
 }
-.content ul.tabs li a {
+.tabs ul.tabs li a {
   color : #ffffee;
   text-decoration: none;
   display: inline-block;
   margin-right: 5px;
-}
-.content ul.tab-bodies {
-  margin : 0;
-  padding: 0;
-  list-style: none;
-  display: block;
-  overflow: auto;
-}
-.content ul.tab-bodies li {
-  margin : 0;
-  padding :0;
+    line-height: 25px;
 }
 .typcn {
 font-size: 14px;
@@ -214,4 +235,75 @@ ul.context-menu li:hover a {
   text-decoration: none;
   color: #dedfdf;;
  
+}
+
+.files ul.level-1 li {padding-left: 10px;}
+.files ul.level-2 li {padding-left: 20px;}
+.files ul.level-3 li {padding-left: 30px;}
+.files ul.level-4 li {padding-left: 40px;}
+.files ul.level-5 li {padding-left: 50px;}
+.files ul.level-6 li {padding-left: 60px;}
+.files ul.level-7 li {padding-left: 70px;}
+.files ul.level-8 li {padding-left: 80px;}
+
+.files h3 { padding-left: 10px;}
+
+/*
+
+MODAL
+
+*/
+.fade {
+  opacity: 0;
+  transition: opacity .15s linear;
+}
+.modal-backdrop.in {
+  opacity: 0.5;
+}
+.modal.in {
+  opacity: 1;
+}
+.modal h3 {
+  color: #333;
+}
+.modal .modal-body {
+  color: #333;
+}
+.modal-backdrop {
+  background: black;
+  position: absolute;
+  top : 0;
+  left : 0;
+  right : 0;
+  z-index: 2000;
+}
+.modal {
+  width: 600px;
+  margin: 30px auto;
+  z-index: 2001;
+  background: #fff;
+  position: relative;
+}
+.modal-header {
+  border: 0;
+  margin: 0;
+  padding: 12px 24px;
+  box-shadow: inset 0 -1px 0 0 #e0e0e0;
+}
+.modal-header h3 {
+  line-height: 36px;
+}
+.modal-body {
+  padding: 24px 24px 0 24px;
+}
+.modal-footer {
+  text-align: right;
+  border-top: 1px solid #e5e5e5;
+  border: 0;
+  margin: 0;
+  padding: 12px;
+  background-color: #eee;
+}
+.modal-footer .btn-group .btn+.btn {
+  margin-left: 1px;
 }
