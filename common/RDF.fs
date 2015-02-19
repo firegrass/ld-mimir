@@ -11,7 +11,8 @@ module RDF =
         | Uri of qname : string * segments : string list * ref : string option
         override x.ToString() = 
             match x with
-            | Uri(q, p, Some r) -> sprintf "%s:%s%s" q (p |> String.concat "/")
+            | Uri(q, p, Some r) -> 
+                sprintf "%s:%s%s" q (p |> String.concat "/") r
             | Uri(q, p, None) -> sprintf "%s:/%s" q (p |> String.concat "/")
     
     module ns = 
@@ -20,7 +21,7 @@ module RDF =
         let cnt = "http://www.w3.org/2011/content#"
         let compilation = "http://nice.org.uk/ns/compilation#"
         let git2prov = "http://nice.org.uk/ns/prov#"
-
+        
         let add (g : IGraph, baseUri) = 
             g.BaseUri <- UriFactory.Create baseUri
             g.NamespaceMap.AddNamespace("prov", UriFactory.Create prov)
