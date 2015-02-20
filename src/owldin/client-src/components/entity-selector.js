@@ -24,20 +24,27 @@ module.exports = function (vfs, app, box){
   }
 
   function fileT (o){
-    return '<li>' +
+    return '<li class="file">' +
         '<span class="typcn typcn-document-text"></span>' +
         '<a href="#">' + 
           o.name +
         '</a>' +
+        '<span class="typcn typcn-hover typcn-info-large"></span>' + 
+        '<span class="typcn typcn-hover typcn-trash"></span>' + 
       '</li>';
   }
 
   function folderT (o){
-    return '<li >' +
+    return '<li>' +
         '<span class="typcn typcn-folder"></span>' +
+        '<span class="typcn typcn-folder-open"></span>' +
         '<a href="#">' + 
           o.name + 
         '</a>' +
+        '<span class="typcn typcn-hover typcn-document-add"></span>' +
+        '<span class="typcn typcn-hover typcn-folder-add"></span>' + 
+        '<span class="typcn typcn-hover typcn-info-large"></span>' + 
+        '<span class="typcn typcn-hover typcn-trash"></span>' + 
       '</li>';
 
   }
@@ -49,9 +56,11 @@ module.exports = function (vfs, app, box){
     dom('li', files).remove();
     var $files = dom(files);
 
-    $files.append(domify('<h3>Project root</h3>'))
-
     function showContents (tree, $parent, level){
+
+      //var el = domify(newFolder());
+    //  $newFolder = dom('a', el);
+     // $parent.append(el);
 
       tree.forEach(function (entity){
 
@@ -66,7 +75,7 @@ module.exports = function (vfs, app, box){
 
             if (event.which === 1){
 
-              app.emit('open-entity', entity.path);
+              app.emit('edit-entity', entity.path);
 
             } else if (event.which === 3){
 
@@ -83,6 +92,16 @@ module.exports = function (vfs, app, box){
           
           $ul = dom('<ul class="level-' + (level + 1)+ '"></ul>');
 
+          $a.on('mouseup', (function(entity, $el, $ul, event){
+
+            if (event.which === 1){
+              $el.toggleClass('open');
+              $ul.toggleClass('open');
+
+            }
+
+          }).bind({}, entity, dom(el), $ul));
+
           showContents(entity.contents, $ul, level + 1);
 
         }
@@ -98,6 +117,9 @@ module.exports = function (vfs, app, box){
 
     showContents(tree, $files, 0);
 
+    dom('ul.files  > li', box.element).addClass('open');
+    dom('ul.files > ul.level-1', box.element).addClass('open');
+
   }
 
   function fileContextMenu(entity, $el){
@@ -105,57 +127,5 @@ module.exports = function (vfs, app, box){
     debugger;
 
   }
-
-
-/*
-function renderCurrentDirectory(data){
-
-  var container = files;
-  deleteChildren(container);
-
-  var li = document.createElement('li');
-  var h3 = document.createElement('h3');
-  li.appendChild(h3)
-  insertText(h3, data.name);
-  container.appendChild(li);
-
-  if (data.parent && data.parent.name){
-
-    var li = document.createElement('li');
-    var a = document.createElement('a');
-    li.appendChild(a)
-
-    insertText(a, 'Back up to ' + data.parent.name );
-    a.onclick = loadDirectory.bind({}, data.parent.href);
-    container.appendChild(li);
-  }
-
-  for (var child in data.children){
-    if (data.children.hasOwnProperty(child)){
-      var li = document.createElement('li');
-      var a = document.createElement('a');
-      a.setAttribute('href', '#');
-      insertText(a, data.children[child].name);
-      li.onmouseup = loadDirectory.bind({}, data.children[child].href, data.children[child], a);
-      li.appendChild(domify('<span class="typcn typcn-folder"><span>'))
-      li.appendChild(a);
-      container.appendChild(li);
-    }
-  }
-
-  data.entities.forEach(function (entity){
-
-    var li = document.createElement('li');
-    var a = document.createElement('a');
-    a.setAttribute('href', '#');
-    insertText(a, entity.name);
-    li.onmouseup = editFile.bind({}, entity, a);
-    li.appendChild(domify('<span class="typcn typcn-document-text"><span>'))
-    li.appendChild(a);
-    container.appendChild(li);
-
-  })
-
-*/
 
 };

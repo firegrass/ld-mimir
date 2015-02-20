@@ -58,12 +58,14 @@ module.exports = function screenInitialiser (){
   // now append to the actual body...
   page.appendToElement(document.querySelector('body'));
 
-
+  var gr = (1 + Math.sqrt(5)) / 2;
   // make sure we have a handler...
   function handleResize (e){
 
     var innerWidth = window.innerWidth;
     var innerHeight = window.innerHeight;
+
+    fileNavigationWidth = window.innerWidth - (window.innerWidth / gr);
 
     page.size(innerWidth, innerHeight);
     page.position(0, 0);
@@ -74,7 +76,7 @@ module.exports = function screenInitialiser (){
     consoleView.size(innerWidth, consoleHeight);
     consoleView.position(0, innerHeight - consoleHeight);
 
-    fileNavigation.size(fileNavigationWidth, innerHeight - topMenu.size().y - consoleView.size().y);
+    fileNavigation.size(fileNavigationWidth - 10, innerHeight - topMenu.size().y - consoleView.size().y - 10);
     fileNavigation.position(0, (topMenu.size().y));
 
     editorWrapper.size(innerWidth - (fileNavigationWidth + 1), innerHeight - topMenu.size().y - consoleView.size().y);

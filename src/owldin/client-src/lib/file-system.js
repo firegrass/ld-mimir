@@ -1,11 +1,15 @@
 var request = require('browser-request');
 var Gather = require('gm-gather');
-
+var SocksJS = require('./socks.js');
+var console = require('../components/console.js');
 
 module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, sockRoot){
 
+  var system = new (require('events')).EventEmitter;
+
   // our internal data structure...
   var data = {
+    entities : [],
     children : {
       root : {
         entities : [],
@@ -20,13 +24,24 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, so
 
   var entityLookup = {};
 
-  var system = new (require('events')).EventEmitter;
+  var socket = new SocksJS(sockRoot);
 
+  socket.onopen = function (){
+    console.log('Remote file server is online.');
+  }
+  socket.onmessage = function (e){
 
-  //var httpRoot = window.location.protocol + "//" + window.location.host + "/vfs";
-  //var sockRoot = window.location.protocol + "//" + window.location.host + "/comms";
+    var msg = JSON.parse(e.data);
 
-  // file system api...
+    for (var i in msg){
+
+      if (i === 'update'){
+        system.emit('entity-updated', 'update', msg.update.path);
+      }
+
+    }
+
+  }
 
   system.readFile = function readFile (path, fn){
 
@@ -51,6 +66,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, so
     request.put({ uri : entity.href, body : body}, function (err, response){
       if (!err){
         fn (false, entity);
+        system.emit('entity-updated', 'update', path);
       } else {
         fn (err);
       }
@@ -113,7 +129,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, so
 
     var tree = [];
 
-    getContents(data.children.root, tree);
+    getContents(data, tree);
 
     fn(tree);
 
@@ -144,23 +160,27 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, so
         for (var child in pointer.children){
           if (pointer.children.hasOwnProperty(child)){
             childCount ++;
-            gatherer.task(function (done, error){
+            gatherer.task((function (href){
 
-              loadFileSystem(pointer.children[child].href, function (err){
+              return function (done, error){
 
-                if (!err){
+                loadFileSystem(href, function (err){
 
-                  done();
+                  if (!err){
 
-                } else {
+                    done();
 
-                  error(err);
+                  } else {
 
-                }
+                    error(err);
 
-              });
+                  }
 
-            });
+                });
+
+              };
+
+            })(pointer.children[child].href));
 
           }
         }
@@ -190,6 +210,8 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, so
   loadFileSystem(data.children.root.href, function (err){
 
     if (!err){
+
+      console.log('Remote file system synchronised');
 
       system.emit('sync', data.children.root.relPath);
 

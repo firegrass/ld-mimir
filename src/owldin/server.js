@@ -33,19 +33,29 @@ var vfs = require('vfs-local')({
   httpRoot: root,
 });
 
-// file system watcher...
-watchr.watch({
-  paths : [projectRoot],
-  listeners : {
-    change : function(changeType,filePath,fileCurrentStat,filePreviousStat){
-      console.log(changeType);
-      broker.emit(changeType, {
-        path : filePath.replace(projectRoot, '')
+require('watch').watchTree(projectRoot,function (f, curr, prev) {
+    if (typeof f == "object" && prev === null && curr === null) {
+      // Finished walking the tree
+    } else if (prev === null) {
+      // f is a new file
+      broker.emit('create', {
+        path : f.replace(projectRoot, '')
       });
-    }
-  }
-});
 
+    } else if (curr.nlink === 0) {
+      // f was removed
+      broker.emit('delete', {
+        path : f.replace(projectRoot, '')
+      });
+
+    } else {
+
+      broker.emit('update', {
+        path : f.replace(projectRoot, '')
+      });
+      // f was changed
+    }
+  });
 
 function createApplicationAndBeginListening (port, vfs, broker){
 

@@ -15,7 +15,6 @@ var app = new (require('events')).EventEmitter();
 var layout = require('./components/screen.js')()
 
 var console = require('./components/console.js');
-
 // virtual file system...
 var vfs = require('./lib/file-system').initialiseFileSystem(vfsRoot, sockRoot);
 
@@ -24,14 +23,31 @@ var entitySelector = require('./components/entity-selector.js')(vfs, app, layout
 
 // an instance of the editor abstraction..
 var editor = require('./components/editor.js')(layout.editor, layout);
+// an instance of the info editor abstraction..
+var info = require('./components/info.js')(layout.editor, layout);
+// an instance of the editor abstraction..
+//var preview = require('./components/preview.js')(layout.editor, layout);
 
 // an edit session manager.
-var sessions = require('./components/sessions.js')(app, vfs, editor, layout.tabs);
+var sessions = require('./components/sessions.js')(app, vfs, editor, info, layout.tabs);
 
 // now we want to listen to various signals coming from the entity selector so that we 
 // can actually interact with the system...
 
+window.onkeydown = function (e){
 
+  if((e.ctrlKey || e.metaKey)){
+
+    if (e.which == 83) {
+
+      e.preventDefault();
+      app.emit('save-entity');
+
+    }
+
+  }
+
+}
 
 
 
@@ -80,15 +96,15 @@ socket.onopen = function (){
 }
 socket.onmessage = function (e){
 
-    var msg = JSON.parse(e.data);
+  var msg = JSON.parse(e.data);
 
-    for (var i in msg){
+  for (var i in msg){
 
-      console.log(msg[i], i)
-
-    }
+    console.log(msg[i], i)
 
   }
+
+}
 
 var editSessions = {};
 var activeDirectory = false;
