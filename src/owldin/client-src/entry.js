@@ -12,7 +12,7 @@ var Delegate = require('dom-delegate').Delegate;
 var app = new (require('events')).EventEmitter();
 
 // layout provider..
-var layout = require('./components/screen.js')()
+var layout = require('./components/layout.js')()
 
 var console = require('./components/console.js');
 // virtual file system...
@@ -21,15 +21,17 @@ var vfs = require('./lib/file-system').initialiseFileSystem(vfsRoot, sockRoot);
 // initialise the entity selector. This MUST happen before the first vfs:sync event.
 var entitySelector = require('./components/entity-selector.js')(vfs, app, layout.nav);
 
+var topMenu = require('./components/top-menu.js')(app, layout.menu)
+
 // an instance of the editor abstraction..
 var editor = require('./components/editor.js')(layout.editor, layout);
 // an instance of the info editor abstraction..
 var info = require('./components/info.js')(layout.editor, layout);
 // an instance of the editor abstraction..
-//var preview = require('./components/preview.js')(layout.editor, layout);
+var previewer = require('./components/previewer.js')(layout.editor, layout);
 
 // an edit session manager.
-var sessions = require('./components/sessions.js')(app, vfs, editor, info, layout.tabs);
+var sessions = require('./components/sessions.js')(app, vfs, editor, info, previewer, layout.tabs);
 
 // now we want to listen to various signals coming from the entity selector so that we 
 // can actually interact with the system...

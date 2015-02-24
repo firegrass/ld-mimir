@@ -29,8 +29,8 @@ module.exports = function (vfs, app, box){
         '<a href="#">' + 
           o.name +
         '</a>' +
+        '<span class="typcn typcn-hover typcn-eye-outline"></span>' + 
         '<span class="typcn typcn-hover typcn-info-large"></span>' + 
-        '<span class="typcn typcn-hover typcn-trash"></span>' + 
       '</li>';
   }
 
@@ -44,7 +44,6 @@ module.exports = function (vfs, app, box){
         '<span class="typcn typcn-hover typcn-document-add"></span>' +
         '<span class="typcn typcn-hover typcn-folder-add"></span>' + 
         '<span class="typcn typcn-hover typcn-info-large"></span>' + 
-        '<span class="typcn typcn-hover typcn-trash"></span>' + 
       '</li>';
 
   }
@@ -71,7 +70,11 @@ module.exports = function (vfs, app, box){
           el = domify(fileT(entity));
           $a = dom('a', el);
 
-          $a.on('mouseup', (function(entity, $el, event){
+          $preview = dom('span.typcn-eye-outline', el);
+          $info = dom('span.typcn-info-large', el);
+          $delete = dom('span.typcn-trash', el);
+
+          $a.on('mouseup', (function (entity, $el, event){
 
             if (event.which === 1){
 
@@ -84,6 +87,23 @@ module.exports = function (vfs, app, box){
             }
 
           }).bind({}, entity, dom(el)))
+
+          $preview.on('click', (function (entity, event){
+
+            event.preventDefault();
+
+            app.emit('preview-entity', entity.path);
+
+          }).bind({}, entity));
+
+          $info.on('click', (function (entity, event){
+
+            event.preventDefault();
+
+            app.emit('edit-entity-info', entity.path);
+
+          }).bind({}, entity));
+
 
         } else if (entity.type === "folder"){
 
@@ -101,6 +121,8 @@ module.exports = function (vfs, app, box){
             }
 
           }).bind({}, entity, dom(el), $ul));
+
+
 
           showContents(entity.contents, $ul, level + 1);
 
@@ -124,7 +146,7 @@ module.exports = function (vfs, app, box){
 
   function fileContextMenu(entity, $el){
 
-    debugger;
+    console.log('Content menu not implemented');
 
   }
 

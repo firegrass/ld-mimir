@@ -14,8 +14,6 @@ var domify = require('domify');
 
 module.exports = function (contentView, layout){
 
-  var stack = [];
-
   var emitter = new (require('events')).EventEmitter();
 
   var element = document.createElement('div');
@@ -83,6 +81,11 @@ module.exports = function (contentView, layout){
   }
   emitter.write = function writeSession(body){
     editor.setValue(body, 1);
+    editor.focus();
+  }
+
+  emitter.focus = function (){
+    editor.focus();
   }
 
   // no sessions to edit.. get rid. 

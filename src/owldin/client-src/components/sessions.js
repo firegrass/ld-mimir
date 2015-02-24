@@ -4,7 +4,7 @@ var dom = require('green-mesa-dom');
 var popups = require('./modal.js');
 var filesize = require('filesize');
 
-module.exports = function (app, vfs, editor, info, box){
+module.exports = function (app, vfs, editor, info, previewer, box){
 
   
 
@@ -74,49 +74,77 @@ module.exports = function (app, vfs, editor, info, box){
   // we use an array because ordering is useful here.
   var sessions = [];
 
-  app.on('save-entity', function (){
+  app.on('preview-entity', function (path){
 
-    var session = findActiveSession();
+    var session = findSession(path, 'preview');
 
-    if (session.bodies.user !== session.bodies.persisted){
-      markSessionAsSynchronising(session);
-      vfs.writeFile(session.path, session.bodies.user, function (err, entity){
-        // we don't care at this point... 
-        console.log('Saved <strong>' + entity.name + '</strong> to ' + entity.relPath + ' (' + filesize(entity.size) + ')');
-
+    if (!session){
+      createPreviewSession(path, function (err, path){
+        openSession(path, 'preview');
       });
+    } else {
+      openSession(path, 'preview');
     }
 
   });
 
-  // the application tells us what the user wants to do...
+    // the application tells us what the user wants to do...
   app.on('edit-entity', function (path){
 
-    var session = findSession(path);
+    var session = findSession(path, 'edit');
 
     if (!session){
 
       createEditSession(path, function (err, path){
-        openEditSession(path);
+        openSession(path, 'edit');
       });
 
     } else {
 
-      openEditSession(path);
+      openSession(path, 'edit');
 
+    }
+
+  });
+
+  app.on('save-entity', function (){
+
+    var session = findActiveSession();
+    editor.focus();
+
+    if (session.type === "edit"){
+      if (session.bodies.user !== session.bodies.persisted){
+        markSessionAsSynchronising(session);
+        vfs.writeFile(session.path, session.bodies.user, function (err, entity){
+          // we don't care at this point... 
+          console.log('Saved <strong>' + entity.name + '</strong> to ' + entity.relPath + ' (' + filesize(entity.size) + ')');
+
+        });
+      }
     }
 
   });
 
   app.on('end-edit-entity', function (path){
 
-    var session = findSession(path);
+    var session = findSession(path, 'edit');
 
     if (session){
-      closeEditSession(path);
+      closeSession(path, 'edit');
     }
 
   });
+
+  app.on('end-preview-entity', function (path){
+
+    var session = findSession(path, 'preview');
+
+    if (session){
+      closeSession(path, 'preview');
+    }
+
+  });
+
 
   // the editor reports when the user has changed an entity...
   editor.on('change', function (entity, user){
@@ -168,7 +196,7 @@ module.exports = function (app, vfs, editor, info, box){
 
       vfs.readFile(path, function (err, entity, body){
 
-        session = findSession(path);
+        session = findSession(path, 'edit');
         session.bodies.persisted = body;
 
         if (body === session.bodies.user){
@@ -186,10 +214,26 @@ module.exports = function (app, vfs, editor, info, box){
 
   });
 
+  function createSession (path, entity, body){
 
+    return {
+      entity : entity,
+      path : path,
+      elements : {
+        $tab : dom('<li><a href="#"></a><span class="typcn typcn-power"></span><span class="typcn typcn-media-record"></span><span class="typcn typcn-arrow-sync"></span></li>')
+      },
+      status : 'synced',
+      active : false,
+      bodies : {
+          persisted : body,
+          user : body
+      }
+    }
 
-  function createEditSession (path, fn){
-    // get the data from the server..
+  }
+
+  function createPreviewSession (path, fn){
+
     vfs.readFile(path, function (err, entity, body){
 
       if (err){
@@ -198,31 +242,22 @@ module.exports = function (app, vfs, editor, info, box){
         return;
       }
 
-      var session = {
-        entity : entity,
-        path : path,
-        bodies : {
-          persisted : body,
-          user : body
-        },
-        type : 'edit',
-        elements : {
-          $tab : dom('<li><a href="#">' + entity.name +'</a><span class="typcn typcn-power"></span><span class="typcn typcn-media-record"></span><span class="typcn typcn-arrow-sync"></span></li>')
-        },
-        status : 'synced',
-        active : false
-      };
+      var session = createSession(path, entity, body);
 
-      dom('a', session.elements.$tab).on('mouseup', function (event){
-        if (event.which === 1){
-          app.emit('edit-entity', path)
-        }
+      session.type = 'preview';
+
+      session.elements.$tab.addClass('preview');
+
+      var $a = dom('a', session.elements.$tab);
+
+      $a.text('Preview: ' + entity.name);
+
+      $a.on('click', function (e){
+        app.emit('preview-entity', path)
       });
 
-      dom('span', session.elements.$tab).on('mouseup', function (event){
-        if (event.which === 1){
-          app.emit('end-edit-entity', path)
-        }
+      dom('span', session.elements.$tab).on('click', function (event){
+        app.emit('end-preview-entity', path)
       });
 
       $ul.append(session.elements.$tab);
@@ -236,23 +271,71 @@ module.exports = function (app, vfs, editor, info, box){
 
   }
 
-  function openEditSession (path){
+  function createEditSession (path, fn){
+    // get the data from the server..
 
-    var session = findSession(path);
+    vfs.readFile(path, function (err, entity, body){
 
-    if (sessions[0].active){
-      // there's another session currently active, so close it..
-      pauseEditSession (sessions[0].path);
+      if (err){
+        console.error('Failed to load ' + path + ' with error ' + err);
+        fn (err, path);
+        return;
+      }
 
-    }
+      var session = createSession(path, entity, body);
 
-    resumeEditSession(path);
+      session.type = 'edit';
+
+      var $a = dom('a', session.elements.$tab);
+
+      $a.text(entity.name);
+
+      $a.on('click', function (e){
+        app.emit('edit-entity', path)
+      });
+
+      dom('span', session.elements.$tab).on('click', function (event){
+        app.emit('end-edit-entity', path)
+      });
+
+      $ul.append(session.elements.$tab);
+
+      // session gets added to the end list of sessions...
+      sessions.push(session);
+
+      fn(false, path);
+
+    });
 
   }
 
-  function closeEditSession (path){
+  function pauseActiveSession (){
 
-    var session = findSession(path);
+    if (sessions[0].active){
+      sessions[0].elements.$tab.removeClass('active');
+      sessions[0].active = false;
+
+      if (sessions[0].type === 'preview'){
+        previewer.close();
+      } else if (sessions[0].type === 'edit'){
+        editor.close();
+      }
+
+    }
+
+  }
+
+
+  function openSession (path, type){
+
+    pauseActiveSession();
+    resumeSession(path, type);
+
+  }
+
+  function closeSession (path, type){
+
+    var session = findSession(path, type);
 
     if (session){
 
@@ -264,13 +347,15 @@ module.exports = function (app, vfs, editor, info, box){
       // kill the reference to the DOM node so it can be garbage collected
       session.elements.$tab = null;
 
+      if (type === 'preview'){
+        previewer.close();
+      } else if (type === 'edit'){
+        editor.close();
+      }
+
       if (sessions[0]){
 
-        resumeEditSession(sessions[0].path);
-
-      } else {
-
-        editor.close();
+        resumeSession(sessions[0].path, sessions[0].type);
 
       }
 
@@ -278,27 +363,27 @@ module.exports = function (app, vfs, editor, info, box){
 
   }
 
-  function pauseEditSession (path){
+  function resumeSession (path, type){
 
-    var session = findSession(path);
-
-    session.elements.$tab.removeClass('active');
-    session.active = false;
-
-  }
-
-  function resumeEditSession (path){
-
-    var session = findSession(path);
+    var session = findSession(path, type);
 
     session.elements.$tab.addClass('active');
     session.active = true;
 
     sessions.unshift(sessions.splice(sessions.indexOf(session), 1)[0]);
 
-    editor.open(session.entity, session.bodies.user);
+    if (type === 'edit'){
+
+      editor.open(session.entity, session.bodies.user);
+
+    } else if (type === 'preview'){
+
+      previewer.open(session.entity, session.bodies.user);
+
+    }
 
   }
+
 
   function markSessionAsDesynced (session){
     // add an asterisk to the tab
@@ -323,10 +408,10 @@ module.exports = function (app, vfs, editor, info, box){
     return sessions[0];
   }
 
-  function findSession (path){
+  function findSession (path, type){
     var index = false;
     for (var i = 0; i < sessions.length; i++){
-      if (sessions[i].path === path){
+      if (sessions[i].path === path && sessions[i].type === type){
         return sessions[i];
       }
     }

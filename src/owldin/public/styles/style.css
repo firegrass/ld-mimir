@@ -168,12 +168,16 @@ span.typcn {
   flex-grow: 1;
   flex-shrink: 1;
   word-break: break-all;
+  overflow: hidden;
 }
 
 .tabs ul.tabs li .typcn-power {
     display: inline-block;
 }
 .tabs ul.tabs li .typcn-arrow-sync {
+    display: none;
+}
+.tabs ul.tabs li .typcn-media-record {
     display: none;
 }
 
@@ -183,16 +187,26 @@ span.typcn {
 .tabs ul.tabs li.synchronising .typcn-arrow-sync {
     display: inline-block;
 }
-.tabs ul.tabs li .typcn-media-record {
-    display: none;
-}
-
 
 .tabs ul.tabs li.desync .typcn-power {
     display: none;
 }
 .tabs ul.tabs li.desync .typcn-media-record {
     display: inline-block;
+}
+
+.tabs ul.tabs li.preview {
+    background: #9e9e9e;
+}
+.tabs ul.tabs li.preview a {
+    color: #333
+}
+
+.tabs ul.tabs li.preview.active {
+    background: #cecece;
+}
+.tabs ul.tabs li.preview.active a {
+    color: #333
 }
 
 
@@ -391,26 +405,43 @@ MODAL
   margin-left: 1px;
 }
 
+.preview {
+    background: #cecece;
+    color: #333;
+    padding: 0;
+    margin: 0;
+}
+.md-preview-content {
+    padding: 20px 40px;
+}
+
 /* Let's get this party started */
 ::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
     margin: 5px;
+    background: #cecece;
+     -webkit-box-shadow: inset 0 0 6px rgba(255,255,255,0.3); 
 }
  
 /* Track */
 ::-webkit-scrollbar-track {
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
+  
+
+    background: #cecece;
+    width: 0px;
+    height: 0px;
 }
  
 /* Handle */
 ::-webkit-scrollbar-thumb {
     -webkit-border-radius: 5px;
     border-radius: 5px;
-    background: rgba(0,0,0,0.3); 
-    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+    background: #4e4e4e; 
 }
 ::-webkit-scrollbar-thumb:window-inactive {
   background: rgba(0,0,0,0.2); 
+}
+::-webkit-scrollbar-corner {
+    background: #cecece;
 }
