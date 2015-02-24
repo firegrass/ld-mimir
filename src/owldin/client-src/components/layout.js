@@ -88,7 +88,7 @@ module.exports = function screenInitialiser (){
     editorView.size(editorWrapper.size().x, editorWrapper.size().y - editorTabHeight);
     editorView.position(0, editorTabHeight);
 
-    emitter.emit('resized', innerWidth, innerHeight);
+    emitter.emit('resize', innerWidth, innerHeight);
 
   }
 

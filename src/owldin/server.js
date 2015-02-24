@@ -119,8 +119,8 @@ function createApplicationAndBeginListening (port, vfs, broker){
     'create-term' : function (msg, conn){
       var term = pty.spawn('bash', [], {
         name: 'xterm-color',
-        cols: 80,
-        rows: 30,
+        cols: msg.cols,
+        rows: msg.rows,
         cwd: process.env.PROJECT_DIR,
         env: process.env
       });
@@ -143,7 +143,7 @@ function createApplicationAndBeginListening (port, vfs, broker){
       conn.write(JSON.stringify({
         'terminal-created' : {
             id : term._id,
-            requestId : msg
+            requestId : msg.id
           }
       }));
     },

@@ -23,6 +23,8 @@ module.exports = function (contentView, layout, remote){
     left : 0
   });
 
+
+
   $element.appendTo(contentView.element);
 
   var userLookup = {};
@@ -48,7 +50,7 @@ module.exports = function (contentView, layout, remote){
     //editor.resize();
     $element.css({
       'min-width' : contentView.size().x + 'px',
-      'min-height' : contentView.size().y + 'px'
+      'min-height' : contentView.size().y + 'px',
     });
 
   });
@@ -57,11 +59,30 @@ module.exports = function (contentView, layout, remote){
   var t = {
     create : function (id, fn){
 
+      $element.css({display : ''});
+
+      var $tester = dom('<div>0</div>');
+      $tester.css({
+        display: 'inline-block'
+      })
+      $element.append($tester);
+        //var $el
+
+      var charWidth = $tester.els[0].clientWidth;
+      var charHeight = $tester.els[0].clientHeight;
+
+      $element.css({display : 'none'});
+      $tester.remove();
+
+      // round down to nearest 10
+      var columns = Math.floor( ((contentView.size().x / charWidth) / 10) ) * 10;
+      var rows = Math.floor(contentView.size().y / charHeight);
+
       remote.once('terminal-created', function (msg){
 
         var term = new Terminal({
-          cols : 80,
-          rows : 24,
+          cols : columns,
+          rows : rows,
           screenKeys : true
         });
 
@@ -90,9 +111,14 @@ module.exports = function (contentView, layout, remote){
 
         fn(false);
 
-
       });
-      remote.send('create-term', id);
+
+
+      remote.send('create-term', {
+        id : id,
+        rows : rows,
+        cols : columns
+      });
 
     },
     resume : function (id){
@@ -106,6 +132,8 @@ module.exports = function (contentView, layout, remote){
       term.$term.css({
         display : ''
       });
+
+      $tester.remove();
 
     },
     pause : function (id){
