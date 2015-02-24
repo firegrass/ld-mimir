@@ -49,6 +49,7 @@
 </ul></li>
 <li><a href="#knowledgebase-compilation">Knowledgebase compilation</a></li>
 <li><a href="#updating-these-docs">Updating these docs</a></li>
+<li><a href="#ontology-management">Ontology management</a></li>
 <li><a href="#updating-these-docs-1">Updating these docs</a></li>
 </ul>
 </nav>
@@ -263,6 +264,22 @@ $ get rebase upstream/master</code></pre>
 <ul>
 <li>Create a pull request from your gh-pages branch to the upstream gh-pages branch.</li>
 </ul>
+<h2 id="ontology-management">Ontology management</h2>
+<p><a href="http://en.wikipedia.org/wiki/Tbox">TBox</a> Ontology statements relating to NICE domains and compilation concerns need to be version controlled and authored as well as the ABox statements generated from content. There are a variety of editors and toolkits appropriate for this, so we will not attempt to build anything. Version control, verification and translation are concerns we need to address.</p>
+<p>So applying the plain text principle, we should choose a representation suitable for use with GIT. The <a href="http://www.w3.org/TR/owl2-manchester-syntax/">Manchester OWL syntax</a> is an elegant notation that is supported by the tools we are likely to use.</p>
+<p>We will use standard version control practices to maintain the ontologies in the /ns folder of the NICE ontology <a href="https://github.com/nhsevidence/ontologies/tree/master/ns">github</a> repository.</p>
+<p>On commit, the input .omn ontologies will be passed into a simple pipeline:</p>
+<ul>
+<li>Translate .omn to .ttl</li>
+<li>Translate .ttl to html documentation</li>
+</ul>
+<p>Store these pre translated resources in a docker container, along with a simple http service that content negotiates ontology urls:</p>
+<ul>
+<li>http://ontologies.nice.org.uk/ns/ontologyname With a standard browser accept header -&gt; returns content of ns/ontologyname.html</li>
+<li>http://ontologies.nice.org.uk/ns/ontologyname Asking for text/ttl -&gt; returns content of ns/ontologyname.ttl</li>
+<li>http://ontologies.nice.org.uk/ns/ontologyname Asking for text/owl-manchester -&gt; returns content of/ontologyname.omn</li>
+</ul>
+<p><a href="mowl-power.cs.man.ac.uk:8080/converter/">MOWL</a> support translation as a service, but we should no rely on an external dependency with no SLA. So our own translation tools are required.</p>
 <h2 id="updating-these-docs-1">Updating these docs</h2>
 <p>While working on a forked version of Mimir:</p>
 <ul>
