@@ -143,6 +143,16 @@ module.exports = function (app, remote, vfs, editor, info, previewer, terminals,
 
   });
 
+  app.on('end-terminal-session', function (path){
+
+    var session = findSession(path, 'terminal');
+
+    if (session){
+      closeSession(path, 'terminal');
+    }
+
+  });
+
   app.on('end-edit-entity', function (path){
 
     var session = findSession(path, 'edit');
@@ -208,25 +218,27 @@ module.exports = function (app, remote, vfs, editor, info, previewer, terminals,
     // we're only interested in two types here. Change and delete. Can't actually
     // get a single 'rename' or ''
 
-    var session;
+    var session = findSession(path, 'edit');
 
-    if (changeType === "update"){ 
+    if (session){
 
-      vfs.readFile(path, function (err, entity, body){
+      if (changeType === "update"){ 
 
-        session = findSession(path, 'edit');
-        session.bodies.persisted = body;
+        vfs.readFile(path, function (err, entity, body){
 
-        if (body === session.bodies.user){
-          markSessionAsSynced(session);
-        } else {
-          markSessionAsDesynced(session);
-        }
+         //session = findSession(path, 'edit');
+          session.bodies.persisted = body;
 
-      });
+          if (body === session.bodies.user){
+            markSessionAsSynced(session);
+          } else {
+            markSessionAsDesynced(session);
+          }
+
+        });
 
 
-    } else if (changeType === "delete"){
+      }
 
     }
 
@@ -411,7 +423,10 @@ module.exports = function (app, remote, vfs, editor, info, previewer, terminals,
       if (type === 'preview'){
         previewer.close();
       } else if (type === 'edit'){
+        // actually this is where we need to discover if it's safe to close it..
         editor.close();
+      } else if (type === 'terminal'){
+        terminals.destroy(path);
       }
 
       if (sessions[0]){
