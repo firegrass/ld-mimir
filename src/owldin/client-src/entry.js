@@ -6,6 +6,7 @@ var sockRoot = window.location.protocol + "//" + window.location.host + "/comms"
 var domify = require('domify');
 var marked = require('marked');
 var Delegate = require('dom-delegate').Delegate;
+var remote = require('./lib/remote.js')(sockRoot);
 
 
 // application level broker... 
@@ -16,7 +17,7 @@ var layout = require('./components/layout.js')()
 
 var console = require('./components/console.js');
 // virtual file system...
-var vfs = require('./lib/file-system').initialiseFileSystem(vfsRoot, sockRoot);
+var vfs = require('./lib/file-system').initialiseFileSystem(app, remote, vfsRoot);
 
 // initialise the entity selector. This MUST happen before the first vfs:sync event.
 var entitySelector = require('./components/entity-selector.js')(vfs, app, layout.nav);
@@ -29,12 +30,12 @@ var editor = require('./components/editor.js')(layout.editor, layout);
 var info = require('./components/info.js')(layout.editor, layout);
 // an instance of the editor abstraction..
 var previewer = require('./components/previewer.js')(layout.editor, layout);
-
+// an instance of the terminal viewer..
+var terminals = require('./components/terminals.js')(layout.editor, layout, remote);
 // an edit session manager.
-var sessions = require('./components/sessions.js')(app, vfs, editor, info, previewer, layout.tabs);
+var sessions = require('./components/sessions.js')(app, remote, vfs, editor, info, previewer, terminals, layout.tabs);
 
-// now we want to listen to various signals coming from the entity selector so that we 
-// can actually interact with the system...
+
 
 window.onkeydown = function (e){
 

@@ -7,6 +7,7 @@ module.exports = function (app, box){
     '<li><span class="typcn typcn-th-menu"></span>' + 
       '<ul>' + 
         '<li><a href="#" rel="rels/save-file"><span class="typcn typcn-arrow-sync"></span>Save</a></li>' + 
+        '<li><a href="#" rel="rels/new-terminal"><span class="typcn typcn-device-desktop"></span>New Terminal</a></li>' + 
       '</ul>' + 
     '</li>' +
   '</ul>');
@@ -20,5 +21,11 @@ module.exports = function (app, box){
 
   });
 
+  dom('a[rel="rels/new-terminal"]', $menu).on('click', function (e){
+
+    e.preventDefault();
+    app.emit('new-terminal-session');
+
+  });
 
 }

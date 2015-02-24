@@ -4,6 +4,8 @@ var watchr = require('watchr');
 var path = require('path');
 var fs = require('fs');
 
+var pty = require('pty.js');
+
 process.title = "gore.io";
 
 // update this
@@ -33,6 +35,16 @@ var vfs = require('vfs-local')({
   httpRoot: root,
 });
 
+// terminal emu...
+var pty = require('pty.js');
+
+process.env.PS1 = "niceOS:\\w $";
+
+
+//term.write('ls\r');
+//term.resize(100, 40);
+//term.write('ls /\r');
+
 require('watch').watchTree(projectRoot,function (f, curr, prev) {
     if (typeof f == "object" && prev === null && curr === null) {
       // Finished walking the tree
@@ -50,9 +62,13 @@ require('watch').watchTree(projectRoot,function (f, curr, prev) {
 
     } else {
 
-      broker.emit('update', {
-        path : f.replace(projectRoot, '')
-      });
+      if (!f.match(/\.swp$/)){
+
+        broker.emit('update', {
+          path : f.replace(projectRoot, '')
+        });
+
+      }
       // f was changed
     }
   });
@@ -86,28 +102,99 @@ function createApplicationAndBeginListening (port, vfs, broker){
 
   var sockjs = require('sockjs');
   var sock = sockjs.createServer();
+  var uuid = require('node-uuid');
 
   var socketConnections = [];
 
+  var terminals = [];
+  var terminalLookup = {};
+
+  var handlers = {
+
+    'term' : function (msg, conn){
+      var term = terminalLookup[msg.id];
+      term.write(msg.packet);
+    },
+
+    'create-term' : function (msg, conn){
+      var term = pty.spawn('bash', [], {
+        name: 'xterm-color',
+        cols: 80,
+        rows: 30,
+        cwd: process.env.PROJECT_DIR,
+        env: process.env
+      });
+
+      conn.terminals.push(term);
+      terminals.push(term);
+
+      term._id = uuid.v4();
+      terminalLookup[term._id] = term;
+
+      term.on('data', function(data) {
+        conn.write(JSON.stringify({
+          'term' : {
+            id : term._id,
+            packet : data
+          }
+        }));
+      });
+
+      conn.write(JSON.stringify({
+        'terminal-created' : {
+            id : term._id,
+            requestId : msg
+          }
+      }));
+    },
+
+    'kill-term' : function (msg, conn){
+
+      var term = terminalLookup[msg];
+      term.destroy();
+      conn.terminals.splice(conn.terminals.indexOf(term), 1);
+      terminals.splice(terminals.indexOf(term), 1);
+      terminalLookup[msg] = null;
+
+      console.log(conn.terminals, terminals, terminalLookup);
+
+    }
+  }
+
   sock.on('connection', function (conn){
 
-    socketConnections.push(conn);
+    conn.terminals = [];
 
-    conn.write(JSON.stringify({ hello : 'world'}));
+    socketConnections.push(conn);
 
     conn.on('data', function (message){
 
       var msg = JSON.parse(message);
       for (var i in msg){
         if (msg.hasOwnProperty(i) && handlers[i]){
-          handlers[i](msg[i])
+          handlers[i](msg[i], conn)
         }
       }
 
     });
 
     conn.on('close', function (){
-      // remove the socket from the list
+
+      if (conn.terminals.length){
+        console.log('Disposing of orphan sessions');
+      }
+
+      for (var i = 0; i < conn.terminals.length; i++){
+        conn.terminals[i].destroy();
+        terminalLookup[conn.terminals[i]._id] = null;
+        //conn.terminals.splice(conn.terminals.indexOf(term), 1);
+        terminals.splice(terminals.indexOf(conn.terminals[i]), 1);
+        
+      }
+
+      console.log(conn.terminals.length + " orphans deleted", terminalLookup, terminals);
+      conn.terminals = null;
+            // remove the socket from the list
       socketConnections.splice(socketConnections.indexOf(conn), 1);
 
     });
@@ -116,17 +203,17 @@ function createApplicationAndBeginListening (port, vfs, broker){
 
   broker.on('create', function (msg){
     socketConnections.forEach(function (conn){
-      conn.write(JSON.stringify({create : msg}));
+      conn.write(JSON.stringify({'remote-entity-create' : msg}));
     })
   });
   broker.on('update', function (msg){
     socketConnections.forEach(function (conn){
-      conn.write(JSON.stringify({ update : msg }));
+      conn.write(JSON.stringify({ 'remote-entity-update' : msg }));
     });
   });
   broker.on('delete', function (msg){
     socketConnections.forEach(function (conn){
-      conn.write(JSON.stringify({ 'delete' : msg }));
+      conn.write(JSON.stringify({ 'remote-entity-delete' : msg }));
       //conn.write('update', JSON.stringify(msg));
     });
   });

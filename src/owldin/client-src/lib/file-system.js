@@ -1,11 +1,18 @@
 var request = require('browser-request');
 var Gather = require('gm-gather');
-var SocksJS = require('./socks.js');
+
 var console = require('../components/console.js');
 
-module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, sockRoot){
+module.exports.initialiseFileSystem = function initialiseFileSystem (app, remote, vfsRoot){
 
   var system = new (require('events')).EventEmitter;
+
+  // global application events... 
+  remote.on('remote-entity-update', function (msg){
+
+    system.emit('entity-updated', 'update', msg.path);
+
+  });
 
   // our internal data structure...
   var data = {
@@ -24,25 +31,6 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, so
 
   var entityLookup = {};
 
-  var socket = new SocksJS(sockRoot);
-
-  socket.onopen = function (){
-    console.log('Remote file server is online.');
-  }
-  socket.onmessage = function (e){
-
-    var msg = JSON.parse(e.data);
-
-    for (var i in msg){
-
-      if (i === 'update'){
-        system.emit('entity-updated', 'update', msg.update.path);
-      }
-
-    }
-
-  }
-
   system.readFile = function readFile (path, fn){
 
     var entity = entityLookup[path]
@@ -58,6 +46,8 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (vfsRoot, so
     });
 
   };
+
+
 
   system.writeFile = function writeFile(path, body, fn){
 

@@ -4,7 +4,7 @@ var dom = require('green-mesa-dom');
 var popups = require('./modal.js');
 var filesize = require('filesize');
 
-module.exports = function (app, vfs, editor, info, previewer, box){
+module.exports = function (app, remote, vfs, editor, info, previewer, terminals, box){
 
   
 
@@ -104,6 +104,24 @@ module.exports = function (app, vfs, editor, info, previewer, box){
       openSession(path, 'edit');
 
     }
+
+  });
+
+  var terminalSessionCount = 0;
+
+  app.on('new-terminal-session', function (){
+
+    createTerminalSession(function (err, path){
+
+      openSession(path, 'terminal');
+
+    });
+
+  });
+
+  app.on('open-terminal-session', function (path){
+
+    openSession(path, 'terminal');
 
   });
 
@@ -232,6 +250,47 @@ module.exports = function (app, vfs, editor, info, previewer, box){
 
   }
 
+  function createTerminalSession (fn){
+
+    var path = 'terminal-' + (++terminalSessionCount);
+
+    terminals.create(path, function (err){
+
+      if (!err){
+
+        var session = createSession(path, {
+          name : path
+        }, '');
+
+        session.type = 'terminal';
+        session.elements.$tab.addClass('terminal');
+
+        var $a = dom('a', session.elements.$tab);
+
+        $a.text('Shell: ' + path);
+
+        $a.on('click', function (e){
+          app.emit('open-terminal-session', path)
+        });
+
+        dom('span', session.elements.$tab).on('click', function (event){
+          app.emit('end-terminal-session', path)
+        });
+
+        $ul.append(session.elements.$tab);
+
+        sessions.push(session);
+
+        fn(false, path);
+
+      } else {
+        fn(err);
+      }
+
+    });
+
+  }
+
   function createPreviewSession (path, fn){
 
     vfs.readFile(path, function (err, entity, body){
@@ -319,6 +378,8 @@ module.exports = function (app, vfs, editor, info, previewer, box){
         previewer.close();
       } else if (sessions[0].type === 'edit'){
         editor.close();
+      } else if (sessions[0].type === 'terminal'){
+        terminals.pause(sessions[0].path);
       }
 
     }
@@ -379,6 +440,10 @@ module.exports = function (app, vfs, editor, info, previewer, box){
     } else if (type === 'preview'){
 
       previewer.open(session.entity, session.bodies.user);
+
+    } else if (type === 'terminal'){
+
+      terminals.resume(path);
 
     }
 
