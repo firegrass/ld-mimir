@@ -16,7 +16,7 @@ module.exports = function screenInitialiser (){
 
   // heights config.. 
   var topMenuHeight = 30;
-  var fileNavigationWidth = 300;
+  var fileNavigationWidth = 400;
   var editorTabHeight = 25;
   var consoleHeight = 100;
 
@@ -65,7 +65,7 @@ module.exports = function screenInitialiser (){
     var innerWidth = window.innerWidth;
     var innerHeight = window.innerHeight;
 
-    fileNavigationWidth = window.innerWidth - (window.innerWidth / gr);
+    //fileNavigationWidth = window.innerWidth - (window.innerWidth / gr);
 
     page.size(innerWidth, innerHeight);
     page.position(0, 0);

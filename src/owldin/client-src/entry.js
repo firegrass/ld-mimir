@@ -1,55 +1,40 @@
-// all I want to do initially, as a test, is get a list of files... 
-
-var request = require('browser-request');
+// probably want to move this to a config file at some point..
 var vfsRoot = window.location.protocol + "//" + window.location.host + "/vfs";
 var sockRoot = window.location.protocol + "//" + window.location.host + "/comms"
-var domify = require('domify');
-var marked = require('marked');
-var Delegate = require('dom-delegate').Delegate;
-var remote = require('./lib/remote.js')(sockRoot);
-
 
 // application level broker... 
 var app = new (require('events')).EventEmitter();
 
-// layout provider..
-var layout = require('./components/layout.js')()
+// layout manages the screen
+var layout = app.layout = require('./components/layout.js')();
 
-var console = require('./components/console.js');
-// virtual file system...
-var vfs = require('./lib/file-system').initialiseFileSystem(app, remote, vfsRoot);
-
+// set up the socket communications with the server for terminals/file updates
+var remote = require('./lib/remote.js')(app, sockRoot);
+// get the virtual file system working...
+app.vfs = require('./lib/file-system').initialiseFileSystem(app, vfsRoot);
 // initialise the entity selector. This MUST happen before the first vfs:sync event.
-var entitySelector = require('./components/entity-selector.js')(vfs, app, layout.nav);
-
-var topMenu = require('./components/top-menu.js')(app, layout.menu)
-
-// an instance of the editor abstraction..
-var editor = require('./components/editor.js')(layout.editor, layout);
-// an instance of the info editor abstraction..
-var info = require('./components/info.js')(layout.editor, layout);
-// an instance of the editor abstraction..
-var previewer = require('./components/previewer.js')(layout.editor, layout);
-// an instance of the terminal viewer..
-var terminals = require('./components/terminals.js')(layout.editor, layout, remote);
-// an edit session manager.
-var sessions = require('./components/sessions.js')(app, remote, vfs, editor, info, previewer, terminals, layout.tabs);
+var entitySelector = require('./components/entity-selector.js')(app, layout.nav);
 
 
+var topMenu = require('./components/top-menu.js')(app, layout.menu);
 
+var sessionHandlers = {
+  ace : require('./components/editors/ace.js')(app, layout.editor),
+  info : require('./components/editors/info.js')(app, layout.editor),
+  preview : require('./components/editors/previewer.js')(app, layout.editor),
+  terminals : require('./components/editors/terminals.js')(app, layout.editor)
+}
+
+var sessions = require('./components/sessions.js')(app, sessionHandlers, layout.tabs);
+
+// system wide save event
 window.onkeydown = function (e){
-
   if((e.ctrlKey || e.metaKey)){
-
     if (e.which == 83) {
-
       e.preventDefault();
       app.emit('save-entity');
-
     }
-
   }
-
 }
 
 

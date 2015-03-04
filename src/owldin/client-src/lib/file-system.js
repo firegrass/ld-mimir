@@ -3,16 +3,61 @@ var Gather = require('gm-gather');
 
 var console = require('../components/console.js');
 
-module.exports.initialiseFileSystem = function initialiseFileSystem (app, remote, vfsRoot){
+module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoot){
 
   var system = new (require('events')).EventEmitter;
 
   // global application events... 
-  remote.on('remote-entity-update', function (msg){
+  app.on('remote-entity-update', function (msg){
 
     system.emit('entity-updated', 'update', msg.path);
 
   });
+
+  app.on('remote-entity-create', function (msg){
+
+    system.emit('entity-updated', 'create', msg.path);
+
+    loadFileSystem(data.children.root.href, function (err){
+
+      if (!err){
+
+        console.log('Remote file system synchronised');
+
+        system.emit('sync', data.children.root.relPath);
+
+      } else {
+
+        system.emit('sync-error', 'Unable to synchronise with remote file system', err);
+
+      }
+
+    });
+
+  });
+
+  app.on('remote-entity-delete', function (msg){
+
+    system.emit('entity-updated', 'delete', msg.path);
+
+    loadFileSystem(data.children.root.href, function (err){
+
+      if (!err){
+
+        console.log('Remote file system synchronised');
+
+        system.emit('sync', data.children.root.relPath);
+
+      } else {
+
+        system.emit('sync-error', 'Unable to synchronise with remote file system', err);
+
+      }
+
+    });
+
+  });
+
 
   // our internal data structure...
   var data = {
@@ -53,18 +98,71 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, remote
 
     var entity = entityLookup[path];
 
-    request.put({ uri : entity.href, body : body}, function (err, response){
-      if (!err){
-        fn (false, entity);
-        system.emit('entity-updated', 'update', path);
-      } else {
-        fn (err);
-      }
-    });
+    if (entity){
+
+      request.put({ uri : entity.href, body : body}, function (err, response){
+        if (!err){
+          fn (false, entity);
+          system.emit('entity-updated', 'update', path);
+        } else {
+          fn (err);
+        }
+      });
+
+    } else {
+
+      request.put({ uri : vfsRoot + path, body : body}, function (err, response){
+        if (!err){
+
+          var p = path.split('/'); var name = p.pop(); p.shift(); 
+          var folder = "/" + p.join('/');
+
+          request.get(vfsRoot + folder, function (err, response){
+
+            var ref = getDirectoryReference(folder);
+
+            var body = JSON.parse(response.body);
+            var entity = false;
+
+            for (var i = 0; i < body.length; i++){
+              if (body[i].name === name){
+                entity = body[i];
+                break;
+              }
+            }
+
+            entityLookup[path] = entity;
+
+            ref.entities.push(entity);
+
+            fn (false, entity);
+            system.emit('sync', data.children.root.relPath);
+            system.emit('entity-updated', 'update', path);
+
+
+          });
+
+
+        } else {
+          fn (err);
+        }
+
+      });
+
+    }
+
   };
 
-  system.renameFile = function renameFile (newPath, oldPath, fn){
+  system.renameFile = function renameFile (path, newName, fn){
 
+    var entity = entityLookup[path];
+
+    var oldPath = entity.relPath;
+    var newPath = entity.href.replace(entity.name, newName);
+
+    request({ method: 'POST', url : newPath, json : { renameFrom : oldPath }}, function (err, response, body){
+      fn(err, newName, entity.name );
+    });
   };
 
   system.deleteFile = function deleteFile (path, fn){
@@ -79,7 +177,25 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, remote
 
   };
 
-  system.renameFolder = function renameFolder (path, fn){
+  system.renameFolder = function renameFolder (path, newName, fn){
+
+    var entity = entityLookup[path];
+
+    var newPath = entity.href.replace(entity.name + "/", newName);
+    var oldPath = entity.relPath;
+
+    request({ method : 'POST', url : newPath, json : {renameFrom : oldPath}}, function (err, response, body){
+      fn (err, newName, entity.name);
+    });
+/*
+  var uri = currentPath.replace(oldFolderName, newFolderName);
+
+  var oldUri = currentPath.replace(vfsRoot, '');
+
+  request({ method: 'POST', url: uri, json : { renameFrom : oldUri}}, function (err, response, body){
+    loadDirectory(activeDirectory);
+  });
+*/
 
   };
 
@@ -110,7 +226,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, remote
           type : 'file',
           name : node.entities[i].name,
           path : node.entities[i].href.replace(vfsRoot, ''),
-          mime : node.entities[i].mime
+          mime : node.entities[i].mime,
+          mtime : node.entities[i].mtime,
+          size : node.entities[i].size
         });
 
       }

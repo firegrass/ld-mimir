@@ -3,6 +3,8 @@ var http = require('http');
 var watchr = require('watchr');
 var path = require('path');
 var fs = require('fs');
+var assert = require('assert');
+var _ = require('underscore');
 
 var pty = require('pty.js');
 
@@ -45,20 +47,31 @@ process.env.PS1 = "niceOS:\\w $";
 //term.resize(100, 40);
 //term.write('ls /\r');
 
+var sCache = {};
+
 require('watch').watchTree(projectRoot,function (f, curr, prev) {
     if (typeof f == "object" && prev === null && curr === null) {
       // Finished walking the tree
+      console.log('tree walked');
     } else if (prev === null) {
       // f is a new file
-      broker.emit('create', {
-        path : f.replace(projectRoot, '')
-      });
+
+      if (!sCache[f] || !_.isEqual(sCache[f], curr)){
+          broker.emit('create', {
+            path : f.replace(projectRoot, '')
+          });
+          sCache[f] = curr;
+      }
 
     } else if (curr.nlink === 0) {
       // f was removed
-      broker.emit('delete', {
-        path : f.replace(projectRoot, '')
-      });
+      if (!sCache[f] || !_.isEqual(sCache[f], curr)){
+          broker.emit('delete', {
+            path : f.replace(projectRoot, '')
+          });
+          sCache[f] = curr;
+      }
+
 
     } else {
 

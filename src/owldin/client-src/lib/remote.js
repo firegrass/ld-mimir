@@ -1,9 +1,7 @@
 var SocksJS = require('./socks.js');
 var console = require('../components/console.js');
 
-module.exports = function (sockRoot){
-
-  var remote = new (require('events')).EventEmitter;
+module.exports = function (app, sockRoot){
 
   var socket = new SocksJS(sockRoot);
 
@@ -15,12 +13,12 @@ module.exports = function (sockRoot){
     var msg = JSON.parse(e.data);
 
     for (var i in msg){
-      if (msg.hasOwnProperty(i)) remote.emit(i, msg[i]);
+      if (msg.hasOwnProperty(i)) app.emit(i, msg[i]);
     }
 
   }
 
-  remote.send = function (signal, msg){
+  app.remoteSend = function (signal, msg){
 
     var o = {};
     o[signal] = msg;
@@ -28,7 +26,5 @@ module.exports = function (sockRoot){
     socket.send(JSON.stringify(o));
 
   };
-
-  return remote;
 
 }

@@ -202,9 +202,10 @@ span.typcn {
 .tabs ul.tabs li.preview.active a {
     color: #333
 }
+.tabs ul.tabs li.info.active {
+    background: #333
+}
  
-
-
 .tabs ul.tabs li.terminal.active {
     background: #000;
 }
@@ -452,4 +453,32 @@ MODAL
 }
 .reverse-video {
   background-color: white;
+}
+
+blockquote.diff {
+    margin: 5px 0px;
+    background: #eeeeee;
+    padding: 10px;
+}
+
+.edit-file-info {
+    padding: 20px;
+}
+
+.edit-file-info form ul {
+  list-style: none;
+  padding: 0;
+}
+
+.edit-file-info ul li {
+    font-size:12px;
+    line-height: 16px;
+    margin: 5px 0px;
+}
+
+.edit-file-info ul li label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 10px;
 }

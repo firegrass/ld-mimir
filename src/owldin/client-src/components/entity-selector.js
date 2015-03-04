@@ -1,16 +1,18 @@
 var domify = require('domify');
 var dom = require('green-mesa-dom');
 
-module.exports = function (vfs, app, box){
+module.exports = function (app, box){
 
   var files = domify('<ul></ul>')
   files.className = "box-inner files";
   box.addElement(files);
 
-  // this event gets triggered whenever the virtual file system has finished synchronising with the server
-  vfs.on('sync', function (path){
+  var currentTree = false;
 
-    vfs.getAll(refreshTree);
+  // this event gets triggered whenever the virtual file system has finished synchronising with the server
+  app.vfs.on('sync', function (path){
+
+    app.vfs.getAll(refreshTree);
 
   });
 
@@ -52,6 +54,8 @@ module.exports = function (vfs, app, box){
 
     //deleteChildren(files);
 
+    currentTree = tree;
+
     dom('li', files).remove();
     var $files = dom(files);
 
@@ -72,13 +76,12 @@ module.exports = function (vfs, app, box){
 
           $preview = dom('span.typcn-eye-outline', el);
           $info = dom('span.typcn-info-large', el);
-          $delete = dom('span.typcn-trash', el);
 
           $a.on('mouseup', (function (entity, $el, event){
 
             if (event.which === 1){
 
-              app.emit('edit-entity', entity.path);
+              app.emit('edit-entity', entity);
 
             } else if (event.which === 3){
 
@@ -92,7 +95,7 @@ module.exports = function (vfs, app, box){
 
             event.preventDefault();
 
-            app.emit('preview-entity', entity.path);
+            app.emit('preview-entity', entity);
 
           }).bind({}, entity));
 
@@ -100,7 +103,7 @@ module.exports = function (vfs, app, box){
 
             event.preventDefault();
 
-            app.emit('edit-entity-info', entity.path);
+            app.emit('edit-entity-info', entity, 'file');
 
           }).bind({}, entity));
 
@@ -109,6 +112,10 @@ module.exports = function (vfs, app, box){
 
           el = domify(folderT(entity));
           $a = dom('a', el);
+
+          $info = dom('span.typcn-info-large', el);
+          $newFolder = dom('span.typcn-folder-add', el);
+          $newFile = dom('span.typcn-document-add', el);
           
           $ul = dom('<ul class="level-' + (level + 1)+ '"></ul>');
 
@@ -117,12 +124,33 @@ module.exports = function (vfs, app, box){
             if (event.which === 1){
               $el.toggleClass('open');
               $ul.toggleClass('open');
-
             }
 
           }).bind({}, entity, dom(el), $ul));
 
+          $newFolder.on('click', (function (entity, event){
 
+            event.preventDefault();
+
+            app.emit('begin-new-folder-session', entity);
+
+          }).bind({}, entity));
+
+          $newFile.on('click', (function (entity, event){
+
+            event.preventDefault();
+
+            app.emit('begin-new-document-session', entity);
+
+          }).bind({}, entity));
+
+          $info.on('click', (function (entity, event){
+
+            event.preventDefault();
+
+            app.emit('edit-entity-info', entity, 'folder');
+
+          }).bind({}, entity));
 
           showContents(entity.contents, $ul, level + 1);
 

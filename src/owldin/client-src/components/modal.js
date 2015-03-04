@@ -10,7 +10,7 @@ var modal = function (o){ return '' +
   '   <h3>'+ o.header + '</h3>' +
   ' </div>' + 
   ' <div class="modal-body">' +
-  '   <p>' + o.message + '</p>' +
+  '   <div>' + o.message + '</div>' +
   ' </div>' +
   ' <div class="modal-footer">' +
   '   <div class="btn-group">' +
