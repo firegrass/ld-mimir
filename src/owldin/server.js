@@ -122,7 +122,47 @@ function createApplicationAndBeginListening (port, vfs, broker){
   var terminals = [];
   var terminalLookup = {};
 
+  var commands = {};
+
   var handlers = {
+
+    'run-command' : function (msg, conn){
+      var args = msg.cmd.split(' ');
+      var cmd = args.splice(0,1)[0];
+
+      console.log(cmd, args);
+
+      commands[msg.id] = require('child_process').spawn(cmd, args, { cwd : projectRoot});
+      commands[msg.id].stdout.on('data', function (data){
+        conn.write(JSON.stringify({
+          'command-stdout': {
+            id : msg.id,
+            packet : '' + data
+          }
+        }))
+      })
+      commands[msg.id].stderr.on('data', function (data){
+        conn.write(JSON.stringify({
+          'command-stderr': {
+            id : msg.id,
+            packet : '' + data
+          }
+        }))
+      })
+      commands[msg.id].on('error', function (){
+
+        console.log('error!');
+
+      });
+      commands[msg.id].on('close', function (code){
+        conn.write(JSON.stringify({
+          'command-close' : {
+            id : msg.id,
+            packet: code
+          }
+        }))
+      });
+    },
 
     'term' : function (msg, conn){
       var term = terminalLookup[msg.id];

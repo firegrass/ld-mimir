@@ -28,6 +28,7 @@ module.exports = function (app, sessionHandlers, box){
   // counters/ids
   var sessionId = 0;
   var terminalSessionCount = 0;
+  var commandSessionCount = 0;
 
   function getEditor (editor){
 
@@ -43,6 +44,8 @@ module.exports = function (app, sessionHandlers, box){
       return sessionHandlers.newDocument;
     } else if (editor === "new-folder"){
       return sessionHandlers.newFolder;
+    } else if (editor === "command"){
+      return sessionHandlers.commands;
     }
   }
 
@@ -240,6 +243,18 @@ module.exports = function (app, sessionHandlers, box){
 
     }
 
+
+  });
+
+  app.on('new-command-session', function (){
+
+    var commandId = 'command-' + (++commandSessionCount);
+
+    var session = initialiseSession({ path : commandId}, commandId, 'command', function (session){
+
+      resumeSession(session);
+
+    });
 
   });
 

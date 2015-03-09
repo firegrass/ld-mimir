@@ -24,7 +24,8 @@ var sessionHandlers = {
   preview : require('./components/editors/previewer.js')(app, layout.editor),
   terminals : require('./components/editors/terminals.js')(app, layout.editor),
   newFolder : require('./components/editors/new-folder.js')(app, layout.editor),
-  newDocument : require('./components/editors/new-document.js')(app, layout.editor)
+  newDocument : require('./components/editors/new-document.js')(app, layout.editor),
+  commands : require('./components/editors/command.js')(app, layout.editor),
 }
 
 var sessions = require('./components/sessions.js')(app, sessionHandlers, layout.tabs);
