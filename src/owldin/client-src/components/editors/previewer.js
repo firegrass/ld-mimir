@@ -32,6 +32,11 @@ module.exports = function (app, contentView){
   var previewSessions = {};
   var currentSession = false;
 
+  app.on('entity-updated', function (oldEntity, newEntity){
+
+
+  });
+
   emitter.create = function createPreviewSession (entity, callback){
     var session = previewSessions[entity._sessionId] = {
       entity : entity,

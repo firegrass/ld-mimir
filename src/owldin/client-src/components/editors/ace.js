@@ -46,6 +46,67 @@ module.exports = function (app, contentView){
   // we know if the editor is active and that the user wishes to save their work.
   var currentSession = false;
 
+  function findSessions (path){
+    for (var session in editSessions){
+      if (editSessions.hasOwnProperty(session)){
+        if (editSessions[session].entity.path === path){
+          return editSessions[session];
+        }
+      }
+    }
+  }
+
+  app.on('entity-updated', function (type, path){
+
+    // let's attempt to match this path to a session..
+    var session = findSessions(path);
+    //if (currentSession){
+
+    if (session){
+
+      if (type === "update"){
+        // let's load the file... ALTHOUGH at this point it's highly likely that the entity data is out of date...
+        app.vfs.readFile(path, function (err, entity, body){
+
+              // okay, first of all, let's see if the user has any local changes:
+          if (session.bodies.user === session.bodies.persisted){
+            // no. They don't have any changes. Therefore we will just automatically
+            // update them to this latest version from the server.
+            session.bodies.conflict = false;
+            session.bodies.persisted = session.bodies.user = body;
+
+          } else {
+
+            session.bodies.persisted = body;
+            session.bodies.conflict = (body !== session.bodies.saving);
+
+          }
+
+          if (session.bodies.user === session.bodies.persisted){
+            app.emit('session-synchronised', session.entity._sessionId);
+          } else {
+            app.emit('session-desynchronised', session.entity._sessionId);
+          }
+
+          if (currentSession && currentSession.entity._sessionId === session.entity._sessionId){
+            emitter.resume(session.entity);
+          }
+
+
+        });
+
+      } else if (type === "delete"){
+
+
+
+      }
+
+    }
+
+    //}
+
+  });
+
   app.on('save-entity', function (){
 
     // we only want to save if we're the active session...
@@ -63,14 +124,7 @@ module.exports = function (app, contentView){
           app.emit('session-synchronised', saveSession.entity._sessionId);
         }
         // send 'new' and 'old'
-        app.emit('entity-updated', saveSession.entity, {
-          mime : response.mime,
-          mtime : response.mtime,
-          size : response.size,
-          path : response.relPath,
-          name : response.name,
-          type : 'file'
-        });
+        app.emit('entity-updated', 'update', saveSession.entity.path);
 
       });
     }

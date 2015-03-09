@@ -10,7 +10,7 @@ module.exports = function (app, box){
   var currentTree = false;
 
   // this event gets triggered whenever the virtual file system has finished synchronising with the server
-  app.vfs.on('sync', function (path){
+  app.on('sync', function (path){
 
     app.vfs.getAll(refreshTree);
 
@@ -116,6 +116,10 @@ module.exports = function (app, box){
           $info = dom('span.typcn-info-large', el);
           $newFolder = dom('span.typcn-folder-add', el);
           $newFile = dom('span.typcn-document-add', el);
+
+          if (entity.path === "/"){
+            $info.css({ display: 'none'})
+          }
           
           $ul = dom('<ul class="level-' + (level + 1)+ '"></ul>');
 

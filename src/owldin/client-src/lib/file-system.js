@@ -1,5 +1,6 @@
 var request = require('browser-request');
 var Gather = require('gm-gather');
+var cloneDeep = require('clone-deep');
 
 var console = require('../components/console.js');
 
@@ -10,13 +11,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
   // global application events... 
   app.on('remote-entity-update', function (msg){
 
-    system.emit('entity-updated', 'update', msg.path);
-
-  });
-
-  app.on('remote-entity-create', function (msg){
-
-    system.emit('entity-updated', 'create', msg.path);
+    app.emit('entity-updated', 'update', msg.path);
 
     loadFileSystem(data.children.root.href, function (err){
 
@@ -24,11 +19,35 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
         console.log('Remote file system synchronised');
 
-        system.emit('sync', data.children.root.relPath);
+        app.emit('sync', data.children.root.relPath);
 
       } else {
 
-        system.emit('sync-error', 'Unable to synchronise with remote file system', err);
+        app.emit('sync-error', 'Unable to synchronise with remote file system', err);
+
+      }
+
+    });
+
+  });
+
+  app.on('remote-entity-create', function (msg){
+
+    app.emit('entity-updated', 'create', msg.path);
+
+    // you know, 
+
+    loadFileSystem(data.children.root.href, function (err){
+
+      if (!err){
+
+        console.log('Remote file system synchronised');
+
+        app.emit('sync', data.children.root.relPath);
+
+      } else {
+
+        app.emit('sync-error', 'Unable to synchronise with remote file system', err);
 
       }
 
@@ -38,7 +57,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   app.on('remote-entity-delete', function (msg){
 
-    system.emit('entity-updated', 'delete', msg.path);
+    app.emit('entity-updated', 'delete', msg.path);
 
     loadFileSystem(data.children.root.href, function (err){
 
@@ -46,11 +65,11 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
         console.log('Remote file system synchronised');
 
-        system.emit('sync', data.children.root.relPath);
+        app.emit('sync', data.children.root.relPath);
 
       } else {
 
-        system.emit('sync-error', 'Unable to synchronise with remote file system', err);
+        app.emit('sync-error', 'Unable to synchronise with remote file system', err);
 
       }
 
@@ -78,12 +97,35 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   system.readFile = function readFile (path, fn){
 
-    var entity = entityLookup[path]
+    var entity = entityLookup[path];
 
     request(entity.href, function (err, response){
 
+      //var headers = response.getAllResponseHeaders();
+
       if (!err){
-        fn (false, entity, response.body);
+
+        var body = response.body;
+
+        request(vfsRoot + entity.parent, function (err, response){
+
+          if (!err){
+            var meta = JSON.parse(response.body);
+            for (var i = 0; i < meta.length; i++){
+              if (meta[i].name === entity.name){
+                entity.mime = meta[i].mime;
+                entity.size = meta[i].size;
+                entity.mtime = meta[i].mtime;
+                fn (false, entity, body);
+                break;
+              }
+            }
+          } else {
+            fn (err, entity);
+          }
+
+        });
+
       } else {
         fn (err, entity);
       }
@@ -103,7 +145,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
       request.put({ uri : entity.href, body : body}, function (err, response){
         if (!err){
           fn (false, entity);
-          system.emit('entity-updated', 'update', path);
+          app.emit('entity-updated', 'update', path);
         } else {
           fn (err);
         }
@@ -136,8 +178,8 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
             ref.entities.push(entity);
 
             fn (false, entity);
-            system.emit('sync', data.children.root.relPath);
-            system.emit('entity-updated', 'update', path);
+            app.emit('sync', data.children.root.relPath);
+            app.emit('entity-updated', 'update', path);
 
 
           });
@@ -161,11 +203,35 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
     var newPath = entity.href.replace(entity.name, newName);
 
     request({ method: 'POST', url : newPath, json : { renameFrom : oldPath }}, function (err, response, body){
-      fn(err, newName, entity.name );
+      // load new metadata... 
+      if (response.status === 200){
+        var newEntity = cloneDeep(entity);
+        newEntity.relPath = newPath.replace(vfsRoot, '');
+        newEntity.href = newPath;
+        newEntity.name = newName;
+
+        delete entityLookup[path];
+
+        entityLookup[newEntity.relPath] = newEntity;
+
+        fn (false, newEntity, entity);
+      } else {
+        fn (err);
+      }
+      //fn(err, newName, entity.name );
+
     });
   };
 
   system.deleteFile = function deleteFile (path, fn){
+
+    var entity = entityLookup[path];
+
+    request({ method : 'delete', url : entity.href}, function (err, response){
+
+      fn(err);
+
+    })
 
   };
 
@@ -173,7 +239,31 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   };
 
-  system.writeFolder = function writeFolder (path, fn){
+  system.writeFolder = function writeFolder (path, newFolderName, fn){
+
+    var entity = entityLookup[path];
+
+    var newPath = entity.href + "/" + newFolderName + "/";
+
+    request({ method: 'put', url : newPath}, function (err, response){
+
+      fn (err, newFolderName);
+
+    });
+
+  };
+
+  system.createFile = function writeFolder (path, newFileName, fn){
+
+    var entity = entityLookup[path];
+
+    var newPath = entity.href + "/" + newFileName;
+
+    request({ method: 'put', url : newPath}, function (err, response){
+
+      fn (err, newFileName);
+
+    });
 
   };
 
@@ -200,6 +290,14 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
   };
 
   system.deleteFolder = function deleteFolder (path, fn){
+
+    var entity = entityLookup[path];
+
+    request({ method : 'delete', url : entity.href}, function (err, response){
+
+      fn(err);
+
+    });
 
   };
 
@@ -228,7 +326,8 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
           path : node.entities[i].href.replace(vfsRoot, ''),
           mime : node.entities[i].mime,
           mtime : node.entities[i].mtime,
-          size : node.entities[i].size
+          size : node.entities[i].size,
+          parent : node.relPath
         });
 
       }
@@ -321,11 +420,11 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
       console.log('Remote file system synchronised');
 
-      system.emit('sync', data.children.root.relPath);
+      app.emit('sync', data.children.root.relPath);
 
     } else {
 
-      system.emit('sync-error', 'Unable to synchronise with remote file system', err);
+      app.emit('sync-error', 'Unable to synchronise with remote file system', err);
 
     }
 
@@ -387,7 +486,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
         // create a relpath..
         entity.relPath = entity.href.replace(vfsRoot, '');
-
+        entity.parent = path.replace(vfsRoot, '');
         // create a lookup by relpath.. 
         entityLookup[entity.relPath] = entity;
 
@@ -413,6 +512,8 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
         }
       }
     }
+
+    entityLookup['/'] = data.children.root;
   }
 
   return system;

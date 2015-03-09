@@ -8,7 +8,7 @@ var _ = require('underscore');
 
 var pty = require('pty.js');
 
-process.title = "gore.io";
+process.title = "owldin";
 
 // update this
 

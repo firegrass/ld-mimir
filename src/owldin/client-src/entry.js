@@ -22,7 +22,9 @@ var sessionHandlers = {
   ace : require('./components/editors/ace.js')(app, layout.editor),
   info : require('./components/editors/info.js')(app, layout.editor),
   preview : require('./components/editors/previewer.js')(app, layout.editor),
-  terminals : require('./components/editors/terminals.js')(app, layout.editor)
+  terminals : require('./components/editors/terminals.js')(app, layout.editor),
+  newFolder : require('./components/editors/new-folder.js')(app, layout.editor),
+  newDocument : require('./components/editors/new-document.js')(app, layout.editor)
 }
 
 var sessions = require('./components/sessions.js')(app, sessionHandlers, layout.tabs);

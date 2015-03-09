@@ -31,54 +31,16 @@ module.exports = function (app, contentView){
 
   });
 
-  var fileT = function(o){
-    return [
-      '<div class="edit-file-info">',
-      '<form class="edit">',
-      '<fieldset>',
-      '<legend>Properties</legend>',
-      '<ul>',
-      '<li><label>Name:</label><input type="text" name="name" value="' + o.name + '"></input></li>',
-      '<li><label>Path:</label>' + o.path + '</li>',
-      '<li><label>Mime type:</label>' + o.mime + '</li>',
-      '<li><label>Modified:</label>' + moment(o.mtime).format('MMMM Do YYYY, h:mm:ss a') + '</li>',
-      '<li><label>Size:</label>' + filesize(o.size) + '</li>',
-      '<li><label></label><button>Update</button></li>',
-      '</ul>',
-      '</fieldset>',
-      '</form>',
-      '<form class="delete">',
-      '<fieldset>',
-      '<legend>Delete</legend>',
-      '<ul>',
-      '<li><label></label><button>Delete</button></li>',
-      '</ul>',
-      '</fieldset>',
-      '</form>',
-      '</div>'
-    ].join('\n');
-
-  };
-
-
   var folderT = function(o){
     return [
       '<div class="edit-file-info">',
       '<form class="edit">',
       '<fieldset>',
-      '<legend>Properties</legend>',
+      '<legend>New document properties</legend>',
       '<ul>',
-      '<li><label>Name:</label><input type="text" name="name" value="' + o.name + '"></input></li>',
+      '<li><label>Name:</label><input type="text" name="name" value="Untitled.md"></input></li>',
       '<li><label>Path:</label>' + o.path + '</li>',
-      '<li><label></label><button>Update</button></li>',
-      '</ul>',
-      '</fieldset>',
-      '</form>',
-      '<form class="delete">',
-      '<fieldset>',
-      '<legend>Delete</legend>',
-      '<ul>',
-      '<li><label></label><button>Delete</button></li>',
+      '<li><label></label><button>Create</button></li>',
       '</ul>',
       '</fieldset>',
       '</form>',
@@ -93,23 +55,9 @@ module.exports = function (app, contentView){
 
   function makeFileSession (session){
 
-    var $el = session.$el = dom(fileT(session.entity));
-
-  }
-
-  function makeFolderSession (session){
-
     var $el = session.$el = dom(folderT(session.entity));
 
-
   }
-
-  app.on('entity-updated', function (type, path){
-
-    // okay worry about this later... first of all I need to be able to 
-    // load the file metadata from the VFS...
-
-  });
 
   emitter.create = function (entity, callback){
 
@@ -120,15 +68,7 @@ module.exports = function (app, contentView){
       synchronised : false
     }
 
-    if (session.entity.type === 'file'){
-
-      makeFileSession(session);
-
-    } else if (session.entity.type === 'folder'){
-
-      makeFolderSession(session);
-
-    }
+    makeFileSession(session);
 
     session.$el.css({ display : 'none'});
 
@@ -136,11 +76,29 @@ module.exports = function (app, contentView){
 
       e.preventDefault();
 
+      var folderName = dom('form.edit input[name="name"]').val();
+
+      if (folderName !== "" && folderName.substr(0,1) !== "."){
+
+        session; debugger;
+
+        app.vfs.createFile(session.entity.path, folderName, function (err){
+
+          if (!err){
+            app.emit('request-terminate-session', entity._sessionId);
+          }
+
+        })
+
+      }
+
       //app.emit('rename-entity', session.entity, dom('form.edit input[name="name"]').val());
 
       /* 
         Let's actually just go ahead and rename it. Because this is hte only place that can do that.
       */
+
+      /*
       if (session.entity.type === 'file'){
 
         app.vfs.renameFile(session.entity.path, dom('form.edit input[name="name"]').val(), function (err, newEntity, oldEntity){
@@ -156,29 +114,7 @@ module.exports = function (app, contentView){
 
         });      
       }
-
-    });
-
-    dom('form.delete', session.$el).on('submit', function (e){
-
-      e.preventDefault();
-
-      if (session.entity.type === 'file'){
-
-        app.vfs.deleteFile(session.entity.path, function (err, newEntity, oldEntity){
-          app.emit('request-terminate-session', entity._sessionId);
-        });
-      } else if (session.entity.type === 'folder'){
-
-        app.vfs.deleteFolder(session.entity.path, function (err, newEntity, oldEntity){
-
-          app.emit('request-terminate-session', entity._sessionId);
-
-        });      
-      }
-
-      //app.emit('delete-entity', session.entity);
-      app.emit('request-terminate-session', entity._sessionId);
+      */
 
     });
 

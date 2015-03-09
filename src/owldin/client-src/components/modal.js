@@ -22,7 +22,6 @@ var modal = function (o){ return '' +
 var loading = '' +
 '<div class="modal fade">' +
 ' <div class="modal-header">Loading... please wait</div>' +
-' <div class="modal-body text-center"><img src="/images/ajax-loader.gif"></div>' + 
 ' <div class="modal-footer"></div>' +
 '</div>';
 

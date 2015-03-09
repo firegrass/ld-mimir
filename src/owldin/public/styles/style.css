@@ -88,7 +88,7 @@ li.folder:hover ul {
 }
 
 .files li .typcn-hover {
-    visibility: hidden;
+    
     opacity: 0.2;
     cursor: pointer;
 }

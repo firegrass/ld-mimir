@@ -39,6 +39,10 @@ module.exports = function (app, sessionHandlers, box){
       return sessionHandlers.preview;
     } else if (editor === "terminal"){
       return sessionHandlers.terminals;
+    } else if (editor === "new-document"){
+      return sessionHandlers.newDocument;
+    } else if (editor === "new-folder"){
+      return sessionHandlers.newFolder;
     }
   }
 
@@ -165,6 +169,35 @@ module.exports = function (app, sessionHandlers, box){
 
     }
 
+
+  });
+
+  app.on('begin-new-document-session', function (entity){
+
+    var session = findSession (entity, 'new-document');
+
+    if (!session){
+
+      initialiseSession(entity, entity.name, 'new-document', function (session){
+        resumeSession(session);
+      });
+
+    }
+
+  });
+
+
+  app.on('begin-new-folder-session', function (entity){
+
+    var session = findSession (entity, 'new-folder');
+
+    if (!session){
+
+      initialiseSession(entity, entity.name, 'new-folder', function (session){
+        resumeSession(session);
+      });
+
+    }
 
   });
 
