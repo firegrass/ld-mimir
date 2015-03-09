@@ -1,12 +1,52 @@
-// all I want to do initially, as a test, is get a list of files... 
-
-var request = require('browser-request');
+// probably want to move this to a config file at some point..
 var vfsRoot = window.location.protocol + "//" + window.location.host + "/vfs";
 var sockRoot = window.location.protocol + "//" + window.location.host + "/comms"
-var broker = new (require('events')).EventEmitter();
-var domify = require('domify');
-var marked = require('marked');
-var Delegate = require('dom-delegate').Delegate;
+
+// application level broker... 
+var app = new (require('events')).EventEmitter();
+
+// layout manages the screen
+var layout = app.layout = require('./components/layout.js')();
+
+// set up the socket communications with the server for terminals/file updates
+var remote = require('./lib/remote.js')(app, sockRoot);
+// get the virtual file system working...
+app.vfs = require('./lib/file-system').initialiseFileSystem(app, vfsRoot);
+// initialise the entity selector. This MUST happen before the first vfs:sync event.
+var entitySelector = require('./components/entity-selector.js')(app, layout.nav);
+
+
+var topMenu = require('./components/top-menu.js')(app, layout.menu);
+
+var sessionHandlers = {
+  ace : require('./components/editors/ace.js')(app, layout.editor),
+  info : require('./components/editors/info.js')(app, layout.editor),
+  preview : require('./components/editors/previewer.js')(app, layout.editor),
+  terminals : require('./components/editors/terminals.js')(app, layout.editor),
+  newFolder : require('./components/editors/new-folder.js')(app, layout.editor),
+  newDocument : require('./components/editors/new-document.js')(app, layout.editor),
+  commands : require('./components/editors/command.js')(app, layout.editor),
+}
+
+var sessions = require('./components/sessions.js')(app, sessionHandlers, layout.tabs);
+
+// system wide save event
+window.onkeydown = function (e){
+  if((e.ctrlKey || e.metaKey)){
+    if (e.which == 83) {
+      e.preventDefault();
+      app.emit('save-entity');
+    }
+  }
+}
+
+
+
+// the entity selector (or 'file navigation thing' to you and I, but we can't call it that)
+
+
+
+/*
 
 var $ = document.querySelector.bind(document);
 
@@ -47,15 +87,15 @@ socket.onopen = function (){
 }
 socket.onmessage = function (e){
 
-    var msg = JSON.parse(e.data);
+  var msg = JSON.parse(e.data);
 
-    for (var i in msg){
+  for (var i in msg){
 
-      console.log(msg[i], i)
-
-    }
+    console.log(msg[i], i)
 
   }
+
+}
 
 var editSessions = {};
 var activeDirectory = false;
@@ -105,6 +145,16 @@ var content = domify([
 ].join('\n'));
 
 
+  
+  // doesn't belong here...
+  var topMenuContent = domify([
+    '<ul class="box-inner menu-content">',
+    '<li><span>File</span><ul><li><a href="#" rel="rels/new-file">New file</a></li><li><a href="#" rel="rels/new-folder">New folder</a></li></ul></li>',
+    '</ul>'
+  ].join('\n'));
+
+  topMenu.addElement(topMenuContent);
+  
 
 contentView.addElement(content);
 
@@ -268,14 +318,7 @@ function createAceInstance (element){
   return editor;
 }
 
-function deleteChildren (node){
-  var fn = function (){ this.remove(); this.onclick = null; };
-  var fns = [];
-  forEach.call( node.childNodes , function (node){ 
-    fns.push(fn.bind(node))
-  });
-  forEach.call(fns, function(fn){fn()});
-}
+
 
 function insertText (node, text){
   node.appendChild(document.createTextNode(text));
@@ -419,15 +462,6 @@ function editFile (entity, element, event){
 }
 
 function renameFile (entity, newName){
-  /*
-    POST is used for various adhoc commands that are useful but don't fit well into the RESTful paradigm. The client sends a JSON body containing the request information.
-
-    Currently this includes:
-
-    {"renameFrom": from} - rename a file from from to target.
-    {"copyFrom": from} - copy a file from from to target.
-    {"linkTo": data} - create a symlink at target containing data.
-  */
 
   var uri = entity.href.replace(entity.name, newName);
 
@@ -739,11 +773,6 @@ function createEditSession (entity){
 
     }
 
-    /*
-
-     editor.renderer.scroller.getBoundingClientRect()
-
-    */
 
   });
 
@@ -918,54 +947,7 @@ function updateFileSystem(path, entities){
   }
 }
 
-function renderCurrentDirectory(data){
 
-  var container = files;
-  deleteChildren(container);
-
-  var li = document.createElement('li');
-  var h3 = document.createElement('h3');
-  li.appendChild(h3)
-  insertText(h3, data.name);
-  container.appendChild(li);
-
-  if (data.parent && data.parent.name){
-
-    var li = document.createElement('li');
-    var a = document.createElement('a');
-    li.appendChild(a)
-
-    insertText(a, 'Back up to ' + data.parent.name );
-    a.onclick = loadDirectory.bind({}, data.parent.href);
-    container.appendChild(li);
-  }
-
-  for (var child in data.children){
-    if (data.children.hasOwnProperty(child)){
-      var li = document.createElement('li');
-      var a = document.createElement('a');
-      a.setAttribute('href', '#');
-      insertText(a, data.children[child].name);
-      li.onmouseup = loadDirectory.bind({}, data.children[child].href, data.children[child], a);
-      li.appendChild(domify('<span class="typcn typcn-folder"><span>'))
-      li.appendChild(a);
-      container.appendChild(li);
-    }
-  }
-
-  data.entities.forEach(function (entity){
-
-    var li = document.createElement('li');
-    var a = document.createElement('a');
-    a.setAttribute('href', '#');
-    insertText(a, entity.name);
-    li.onmouseup = editFile.bind({}, entity, a);
-    li.appendChild(domify('<span class="typcn typcn-document-text"><span>'))
-    li.appendChild(a);
-    container.appendChild(li);
-
-  })
-
-}
 
 loadDirectory(fileSystem.children.root.href);
+*/

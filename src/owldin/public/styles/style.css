@@ -1,8 +1,13 @@
 body {
   background: #333;
   color: #FFFFEE;
-  font-family: Lucida Grande;
-  font-size: 10px;
+  font-size: 12px;
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+  line-height: 16px;
+}
+.typcn {
+  font-size: 16px;
+  line-height: 16px;
 }
 .box {
   margin : 0;
@@ -10,8 +15,14 @@ body {
   padding: 0;
   overflow: auto;
 }
+.box.console {
+    background: #888;
+    box-shadow: inset 0px 5px 10px rgba(0,0,0,0.4);
+}
 .box.file-nav {
-  background : #555;
+  background: #dedede;
+  color: #555;
+  padding: 5px;
 }
 .box.top-menu {
   background: #999;
@@ -24,65 +35,183 @@ body {
   list-style: none;
   padding: 0;
 
+  display: flex;
+  flex-direction: column;
 }
 .files li {
-  padding: 5px 10px;
+  /* padding: 5px 10px; */
   display: flex;
 
+  flex-grow: 1;
+}
+li.folder:hover ul {
+  background: #555;
+}
+.files li.folder {
+  flex-direction: column;
+}
+.files li div {
+  flex-direction: row;
+  flex-grow: 1;
+  display: flex;
 }
 .files li:hover {
-  background: #333;
+  background: #cecece;
 }
 .files li a {
-  color : #FFFFEE;
+  color : #555;
   text-decoration: none;
   line-height: 1.5;
   margin-left: 5px;
   outline: none;
 }
 .files li a:hover{
-  color : #FFFFFF;
+  color : #333;
 }
-.files li a::selection {
-    background: #000;
-    color: #fff;
+.files ul.level-1 li {padding-left: 10px;}
+.files ul.level-2 li {padding-left: 20px;}
+.files ul.level-3 li {padding-left: 30px;}
+.files ul.level-4 li {padding-left: 40px;}
+.files ul.level-5 li {padding-left: 50px;}
+.files ul.level-6 li {padding-left: 60px;}
+.files ul.level-7 li {padding-left: 70px;}
+.files ul.level-8 li {padding-left: 80px;}
+
+.files h3 { padding-left: 10px;}
+
+.files li.new {
+  padding-left: 10px;
 }
-.content ul.tabs {
-  background: #353535;
+.files li.new a {
+  font-style: italic;
+  color : #bbb;
+}
+
+.files li .typcn-hover {
+    
+    opacity: 0.2;
+    cursor: pointer;
+}
+.files li.file:hover .typcn-hover {
+  visibility: visible;
+  opacity: 1;
+
+}
+
+.files li.open .typcn-hover {
+   visibility: visible;
+}
+
+.files li.open:hover .typcn-hover {
+    opacity: 1
+
+}
+
+.files li a {
+  flex-grow: 1;
+}
+
+span.typcn {
+    margin: 3px 3px 3px 3px;
+}
+
+.files li a {
+    margin: 3px 7px;
+}
+.files ul {
+  padding: 0px;
+  display:none;
+}
+.files ul.open {
   display: block;
+}
+.files li .typcn-folder-open {
+    display: none;
+}
+
+.files li.open .typcn-folder-open {
+    display: inline-block;
+}
+
+.files li.open .typcn-folder {
+    display: none;
+}
+.tabs ul.tabs {
+  background: #353535;
+  display: flex;
   padding: 0;
   margin: 0;
   height: 25px;
 }
-.content ul.tabs li {
-  float: left;
-  padding: 5px;
+.tabs ul.tabs li {
+  flex-shrink: 1;
+  padding: 0px 10px;
   list-style: none;
+  background: #555;
+  box-shadow: inset 0px -5px 6px rgba(0,0,0,0.3);
+  display: flex;
+  flex-grow: 1;
 }
-.content ul.tabs li.active {
-  background: #777;
+
+.tabs ul.tabs li.active {
+  background: #272822;
+  box-shadow: none;
+  flex-shrink: 0;
+  flex-grow: 1;
 }
-.content ul.tabs li a {
+.tabs ul.tabs li a {
   color : #ffffee;
   text-decoration: none;
   display: inline-block;
   margin-right: 5px;
+  line-height: 25px;
+  flex-grow: 1;
+  flex-shrink: 1;
+  word-break: break-all;
+  overflow: hidden;
 }
-.content ul.tab-bodies {
-  margin : 0;
-  padding: 0;
-  list-style: none;
-  display: block;
-  overflow: auto;
+
+.tabs ul.tabs li .typcn-power {
+    display: inline-block;
 }
-.content ul.tab-bodies li {
-  margin : 0;
-  padding :0;
+.tabs ul.tabs li .typcn-arrow-sync {
+    display: none;
 }
-.typcn {
-font-size: 14px;
-line-height: 0.9;
+.tabs ul.tabs li .typcn-media-record {
+    display: none;
 }
+
+.tabs ul.tabs li.synchronising .typcn-power {
+    display: none;
+}
+.tabs ul.tabs li.synchronising .typcn-arrow-sync {
+    display: inline-block;
+}
+
+.tabs ul.tabs li.desync .typcn-power {
+    display: none;
+}
+.tabs ul.tabs li.desync .typcn-media-record {
+    display: inline-block;
+}
+
+
+.tabs ul.tabs li.preview.active {
+    background: #cecece;
+}
+.tabs ul.tabs li.preview.active a {
+    color: #333
+}
+.tabs ul.tabs li.info.active {
+    background: #333
+}
+ 
+.tabs ul.tabs li.terminal.active {
+    background: #000;
+}
+
+
+
 .autocomplete-popup {
   position: absolute;
   margin: 0;
@@ -214,4 +343,142 @@ ul.context-menu li:hover a {
   text-decoration: none;
   color: #dedfdf;;
  
+}
+
+
+/*
+
+MODAL
+
+*/
+.fade {
+  opacity: 0;
+  transition: opacity .15s linear;
+}
+.modal-backdrop.in {
+  opacity: 0.5;
+}
+.modal.in {
+  opacity: 1;
+}
+.modal h3 {
+  color: #333;
+}
+.modal .modal-body {
+  color: #333;
+}
+.modal-backdrop {
+  background: black;
+  position: absolute;
+  top : 0;
+  left : 0;
+  right : 0;
+  z-index: 2000;
+}
+.modal {
+  width: 600px;
+  margin: 30px auto;
+  z-index: 2001;
+  background: #fff;
+  position: relative;
+}
+.modal-header {
+  border: 0;
+  margin: 0;
+  padding: 12px 24px;
+  box-shadow: inset 0 -1px 0 0 #e0e0e0;
+}
+.modal-header h3 {
+  line-height: 36px;
+}
+.modal-body {
+  padding: 24px;
+}
+.modal-footer {
+  text-align: right;
+  border-top: 1px solid #e5e5e5;
+  border: 0;
+  margin: 0;
+  padding: 12px;
+  background-color: #eee;
+}
+.modal-footer .btn-group .btn+.btn {
+  margin-left: 1px;
+}
+
+.preview {
+    background: #cecece;
+    color: #333;
+    padding: 0;
+    margin: 0;
+}
+.md-preview-content {
+    padding: 20px 40px;
+}
+
+/* Let's get this party started */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    margin: 5px;
+    background: #cecece;
+     -webkit-box-shadow: inset 0 0 6px rgba(255,255,255,0.3); 
+}
+ 
+/* Track */
+::-webkit-scrollbar-track {
+  
+
+    background: #cecece;
+    width: 0px;
+    height: 0px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    background: #4e4e4e; 
+}
+::-webkit-scrollbar-thumb:window-inactive {
+  background: rgba(0,0,0,0.2); 
+}
+::-webkit-scrollbar-corner {
+    background: #cecece;
+}
+
+.terminals {
+  font: 12px/normal 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  background: #000;
+}
+.reverse-video {
+  background-color: white;
+}
+
+blockquote.diff {
+    margin: 5px 0px;
+    background: #eeeeee;
+    padding: 10px;
+}
+
+.edit-file-info {
+    padding: 20px;
+}
+
+.edit-file-info form ul {
+  list-style: none;
+  padding: 0;
+}
+
+.edit-file-info ul li {
+    font-size:12px;
+    line-height: 16px;
+    margin: 5px 0px;
+}
+
+.edit-file-info ul li label {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 10px;
 }

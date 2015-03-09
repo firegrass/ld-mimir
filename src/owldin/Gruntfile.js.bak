@@ -10,6 +10,13 @@ module.exports = function (grunt){
         tasks: ['develop'],
         options: { nospawn: true }
       },
+      client : {
+        files : [
+          'client-src/entry.js',
+          'client-src/**/*.js'
+        ],
+        tasks : ['browserify']
+      },
       deps : {
         files : [
           'package.json'
