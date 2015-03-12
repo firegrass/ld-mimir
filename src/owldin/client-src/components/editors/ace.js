@@ -36,7 +36,7 @@ module.exports = function (app, contentView){
     // and call resize... 
     for (var id in editSessions){
       if (editSessions.hasOwnProperty(id)){
-        editSessions.$container.css({
+        editSessions[id].$container.css({
           width: contentView.size().x + "px",
           height : contentView.size().y + "px"
         });
