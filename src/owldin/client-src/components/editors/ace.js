@@ -10,36 +10,41 @@ require('brace/mode/json');
 require('brace/mode/markdown');
 require('brace/theme/monokai');
 
-var domify = require('domify');
+var dom = require('green-mesa-dom');
 
 module.exports = function (app, contentView){
 
   var emitter = new (require('events')).EventEmitter();
 
-  var element = document.createElement('div');
+  var $element = dom('<div></div>');
 
-  element.style.display = "none";
-  element.style.width = contentView.size().x + "px";
-  element.style.height = contentView.size().y + "px";
-  element.style.position = "absolute";
-  element.style.top = "0px";
-  element.style.left = "0px";
-
-  contentView.addElement(element);
-
-  var editor = ace.edit(element);
-  editor.setTheme('ace/theme/monokai');
-  editor.getSession().setUseWrapMode(true);
-  editor.setShowPrintMargin(false);
-
-  app.layout.on('resize', function (width, height){
-
-    element.style.width = contentView.size().x + "px";
-    element.style.height = contentView.size().y + "px";
-    editor.resize();
-
+  $element.css({
+    display : 'none',
+    width : contentView.size().x + "px",
+    height : contentView.size().y + "px",
+    position: 'absolute',
+    top : '0px',
+    left : '0px'
   });
 
+
+  contentView.addElement($element.els[0]);
+  
+  app.layout.on('resize', function (width, height){
+
+    // for this to work we'll have to go through and find all the editor instances. 
+    // and call resize... 
+    for (var id in editSessions){
+      if (editSessions.hasOwnProperty(id)){
+        editSessions.$container.css({
+          width: contentView.size().x + "px",
+          height : contentView.size().y + "px"
+        });
+        editSessions[id].editor.resize();
+      }
+    }
+
+  });
 
   var editSessions = {};
   // we keep a track of which session is active so that if the global 'save entity' signal comes along, 
@@ -131,20 +136,7 @@ module.exports = function (app, contentView){
 
   });
 
-  editor.on('change', function (){
 
-    if (currentSession){
-      currentSession.bodies.user = editor.getValue();
-      if (currentSession.synchronised && currentSession.bodies.user !== currentSession.bodies.persisted){
-        currentSession.synchronised = false;
-        app.emit('session-desynchronised', currentSession.entity._sessionId);
-      } else if (!currentSession.synchronised && (currentSession.bodies.user === currentSession.bodies.persisted)){
-        currentSession.synchronised = true;
-        app.emit('session-synchronised', currentSession.entity._sessionId);
-      }
-    }
-
-  });
 
   emitter.create = function createEditSession (entity, callback){
 
@@ -153,6 +145,42 @@ module.exports = function (app, contentView){
       bodies : {},
       synchronised : false
     };
+
+    var $container = dom('<div></div>');
+    $container.css({
+      position : 'absolute',
+      top : '0px',
+      left : '0px',
+      width : contentView.size().x + "px",
+      height : contentView.size().y + "px",
+      display : 'none'
+    });
+
+    session.$container = $container;
+
+    $element.append($container);
+
+    var editor = ace.edit($container.els[0]);
+    editor.setTheme('ace/theme/monokai');
+    editor.getSession().setUseWrapMode(true);
+    editor.setShowPrintMargin(false);
+
+    editor.on('change', function (){
+
+      if (currentSession){
+        currentSession.bodies.user = editor.getValue();
+        if (currentSession.synchronised && currentSession.bodies.user !== currentSession.bodies.persisted){
+          currentSession.synchronised = false;
+          app.emit('session-desynchronised', currentSession.entity._sessionId);
+        } else if (!currentSession.synchronised && (currentSession.bodies.user === currentSession.bodies.persisted)){
+          currentSession.synchronised = true;
+          app.emit('session-synchronised', currentSession.entity._sessionId);
+        }
+      }
+
+    });
+
+    session.editor = editor;
 
     app.emit('session-synchronising', entity._sessionId);
 
@@ -185,22 +213,39 @@ module.exports = function (app, contentView){
     }
 
     if (currentSession.entity.mime === "text/x-markdown"){
-      editor.getSession().setMode('ace/mode/markdown');
+      currentSession.editor.getSession().setMode('ace/mode/markdown');
     } else if (currentSession.entity.mime === "application/json"){
-      editor.getSession().setMode('ace/mode/json');
+      currentSession.editor.getSession().setMode('ace/mode/json');
     }
 
-    editor.setValue(currentSession.bodies.user, 1);
-    editor.focus();
+    currentSession.$container.css({
+      display : ''
+    })
 
-    element.style.display = "";
+    currentSession.editor.setValue(currentSession.bodies.user, 1);
+    currentSession.editor.focus();
+
+    $element.css({
+      display : ''
+    })
 
   }
 
   emitter.pause = function pauseEditSession (entity){
 
+    var session = editSessions[entity._sessionId];
+
+    session.$container.css({
+      display : 'none'
+    });
+
     currentSession = false;
-    element.style.display = "none";
+
+
+    $element.css({
+      display: 'none'
+    });
+
 
   }
 
@@ -209,15 +254,22 @@ module.exports = function (app, contentView){
     // this is where we figure out whether it's okay to close this thing...
     var session = editSessions[entity._sessionId];
 
+
     if (!session){
 
       callback(true);
 
     } else {
 
+      session.editor.destroy();
+      session.$container.remove();
+
       editSessions[entity._sessionId] = null;
       delete editSessions[entity._sessionId];
-      element.style.display = "none";
+      
+      $element.css({
+        display : 'none'
+      });
       callback(true);
 
     }
