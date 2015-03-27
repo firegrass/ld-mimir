@@ -1,0 +1,3 @@
+#!/bin/bash
+
+mono /tools/packages/NICE.git2prov/tools/git2prov.exe "$@"

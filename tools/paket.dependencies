@@ -1,0 +1,4 @@
+source https://nuget.org/api/v2
+
+nuget NICE.Freya
+nuget NICE.git2prov

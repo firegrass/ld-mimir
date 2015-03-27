@@ -18,12 +18,12 @@ MARKDOWN += $(PAGES)
 TEMPLATES = docs/templates/
 
 clean:
-PANDOC_OPT = -r simple_tables+table_captions+yaml_metadata_block+tex_math_dollars+tex_math_single_backslash -s -S --normalize --smart -f markdown --standalone --toc  
+PANDOC_OPT = -r simple_tables+table_captions+yaml_metadata_block+tex_math_dollars+tex_math_single_backslash -s -S --normalize --smart -f markdown --standalone --toc
 
 compile:
-	pandoc $(PANDOC_OPT) --csl=$(TEMPLATES)nice.csl  --bibliography=$(PROJECT_DIR)cites.bibtex --template=$(TEMPLATES)html.template -t html5 $(MARKDOWN) -o $(BUILD)index.html; 
+	pandoc $(PANDOC_OPT) --csl=$(TEMPLATES)nice.csl  --bibliography=$(PROJECT_DIR)cites.bibtex --template=$(TEMPLATES)html.template -t html5 $(MARKDOWN) -o $(BUILD)index.html;
 
-publish: compile 
+publish: compile
 	-git stash ; \
 	git stash ; \
 	git checkout gh-pages ; \
@@ -39,4 +39,4 @@ publish: compile
 npm:
 	cd src/owldin && npm install
 
-all: npm 
+all: npm
