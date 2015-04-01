@@ -52,19 +52,20 @@ module.exports = function (app, contentView){
   app.on('command-stdout', function (o){
 
     // actually this is 
-    commandSessions[o.id].$el.append('<pre>' + o.packet + '</pre>');
+    if (commandSessions[o.id]) commandSessions[o.id].$el.append('<pre>' + o.packet + '</pre>');
+
 
   });
 
   app.on('command-stderr', function (o){
 
     // actually this is 
-    commandSessions[o.id].$el.append('<pre class="error">' + o.packet + '</pre>');
+    if (commandSessions[o.id]) commandSessions[o.id].$el.append('<pre class="error">' + o.packet + '</pre>');
 
   });
 
   app.on('command-close', function (o){
-    commandSessions[o.id].$el.append('<p>Completed with error code ' + o.packet + '</p>');
+    if (commandSessions[o.id]) commandSessions[o.id].$el.append('<p>Completed with error code ' + o.packet + '</p>');
   });
 
   var requestId = 0;
