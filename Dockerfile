@@ -5,10 +5,11 @@ ADD src/owldin/ /owldin/
 ADD tools/ /tools/
 
 RUN \
-   apt-get install -q -y raptor-utils graphziv && \
+   apt-get install -q -y raptor-utils graphviz && \
    mozroots --import --sync && \
    cd /tools && \
-   ./install.sh
+   ./install.sh && \
+   cd -
 
 ENV PROJECT_DIR="/tmp"
 ENV MIMIR_PORT=80
