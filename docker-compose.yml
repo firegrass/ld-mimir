@@ -1,9 +1,15 @@
-owldin:
-  build:
+mimir:
+  build: .
   command: node /owldin/server.js
   ports:
     - "80:80"
   links:
     - schema
+  volumes_from:
+    - data
 schema:
   image: nice/ontologies
+data:
+  image: nice/ld-docker-data
+  volumes:
+    - /git/
