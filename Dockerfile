@@ -8,8 +8,7 @@ RUN \
    apt-get install -q -y raptor-utils graphviz && \
    mozroots --import --sync && \
    cd /tools && \
-   ./install.sh && \
-   cd -
+   ./install.sh
 
 ENV PROJECT_DIR="/tmp"
 ENV MIMIR_PORT=80

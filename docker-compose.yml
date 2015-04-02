@@ -1,0 +1,9 @@
+owldin:
+  build:
+  command: node /owldin/server.js
+  ports:
+    - "80:80"
+  links:
+    - schema
+schema:
+  image: nice/ontologies
