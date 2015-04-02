@@ -1,4 +1,4 @@
 #!/bin/bash
 
-freya --output /repo/build --compilation "http://ontologies/compilation" \
+freya --output /repo/build --compilation "http://schema/compilation" \
   --provenence <(git2prov --path $1 --since all --showcontent --showhistory --showcompilation --includeworkingarea)
