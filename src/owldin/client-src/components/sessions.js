@@ -160,7 +160,7 @@ module.exports = function (app, sessionHandlers, box){
 
     if (!session){
 
-      if (entity.mime !== "application/json" || entity.mime !== "text/x-markdown"){
+      if (entity.mime !== "application/json" && entity.mime !== "text/x-markdown" && entity.mime !== "application/javascript"){
 
         initialiseSession(entity, entity.name, 'preview', function (session){
 

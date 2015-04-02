@@ -34,7 +34,7 @@ module.exports = function (app, contentView){
 
   app.on('command-stdout', function (o){
 
-    if (o.id.indexOf('-preview') !== -1){
+    if (o.id.indexOf && o.id.indexOf('-preview') !== -1){
 
       var id = o.id.replace('-preview', '');
 
@@ -50,7 +50,7 @@ module.exports = function (app, contentView){
 
   app.on('command-stderr', function (o){
 
-    if (o.id.indexOf('-preview') !== -1){
+    if (o.id.indexOf && o.id.indexOf('-preview') !== -1){
 
       var id = o.id.replace('-preview', '');
 
@@ -65,7 +65,7 @@ module.exports = function (app, contentView){
 
   app.on('command-close', function (o){
 
-    if (o.id.indexOf('-preview') !== -1){
+    if (o.id.indexOf && o.id.indexOf('-preview') !== -1){
 
       var id = o.id.replace('-preview', '');
 
@@ -141,6 +141,8 @@ module.exports = function (app, contentView){
         id : entity._sessionId + '-preview',
         cmd : 'rapper -i turtle .' + entity.path + ' -o dot | dot -Tsvg'
       });
+
+      app.emit('session-synchronised', entity._sessionId);
 
       callback(true);
 
