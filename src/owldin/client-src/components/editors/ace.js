@@ -7,6 +7,7 @@
 
 var ace = require('brace');
 require('brace/mode/json');
+require('brace/mode/javascript');
 require('brace/mode/markdown');
 require('brace/theme/monokai');
 
@@ -216,6 +217,8 @@ module.exports = function (app, contentView){
       currentSession.editor.getSession().setMode('ace/mode/markdown');
     } else if (currentSession.entity.mime === "application/json"){
       currentSession.editor.getSession().setMode('ace/mode/json');
+    } else if (currentSession.entity.mime === "application/javascript"){
+      currentSession.editor.getSession().setMode('ace/mode/javascript');
     }
 
     currentSession.$container.css({

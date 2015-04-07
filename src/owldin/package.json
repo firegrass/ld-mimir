@@ -35,7 +35,8 @@
     "vfs-http-adapter": "^0.2.3",
     "vfs-local": "^0.3.13",
     "watch": "^0.14.0",
-    "watchr": "2.4.10"
+    "watchr": "2.4.10",
+    "nodegit" : "0.3.3"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

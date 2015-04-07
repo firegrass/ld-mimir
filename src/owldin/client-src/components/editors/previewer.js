@@ -32,8 +32,61 @@ module.exports = function (app, contentView){
   var previewSessions = {};
   var currentSession = false;
 
-  app.on('entity-updated', function (oldEntity, newEntity){
+  app.on('command-stdout', function (o){
 
+    if (o.id.indexOf && o.id.indexOf('-preview') !== -1){
+
+      var id = o.id.replace('-preview', '');
+
+      // actually this is 
+      if (previewSessions[id]){
+
+        previewSessions[id].converted += o.packet;
+      }
+
+    }
+
+  });
+
+  app.on('command-stderr', function (o){
+
+    if (o.id.indexOf && o.id.indexOf('-preview') !== -1){
+
+      var id = o.id.replace('-preview', '');
+
+      // actually this is 
+      if (previewSessions[id]){
+        // what should we do with errors? Probably just stop and display "sorry!";
+      }
+
+    }
+
+  });
+
+  app.on('command-close', function (o){
+
+    if (o.id.indexOf && o.id.indexOf('-preview') !== -1){
+
+      var id = o.id.replace('-preview', '');
+
+      // actually this is 
+      if (previewSessions[id]){
+
+        previewSessions[id].body = previewSessions[id].converted;
+        previewSessions[id].complete = true;
+
+        // only if the session is teh current session...
+        app.emit('session-synchronised', id);
+
+        if (previewSessions[id] === currentSession){
+          $element.html(previewSessions[id].body);
+          $element.find('svg').attr('width', parseFloat($element.find('svg').attr('width'), 10) / 2 + "pt");
+          $element.find('svg').attr('height', parseFloat($element.find('svg').attr('height'), 10) / 2 + "pt");
+        }
+
+      }
+
+    }
 
   });
 
@@ -43,20 +96,57 @@ module.exports = function (app, contentView){
       body : {}
     };
 
-    app.vfs.readFile(entity.path, function (err, response, body){
+    var fileExt = entity.name.split(".")[1];
 
-      if (err){
-        callback (false, err);
-        return;
-      }
+    if (fileExt === "md" || fileExt === "txt" || fileExt === ""){
 
-      session.body = body;
+      app.vfs.readFile(entity.path, function (err, response, body){
+
+        if (err){
+          callback (false, err);
+          return;
+        }
+
+        session.body = body;
+
+        app.emit('session-synchronised', entity._sessionId);
+
+        callback(true);
+
+      });
+
+    } else if (fileExt === "png" || fileExt === "jpg" || fileExt === "gif") {
+
+      app.vfs.readFileAsBase64(entity.path, function (err, response, body){
+
+        if (err){
+          callback (false, err);
+          return
+        }
+
+        session.body = body;
+
+        app.emit('session-synchronised', entity._sessionId);
+
+        callback(true);
+
+      });
+
+    } else if (fileExt === "ttl") {
+
+      session.converted = "";
+      session.complete = false;
+
+      app.remoteSend('run-command', {
+        id : entity._sessionId + '-preview',
+        cmd : 'rapper -i turtle .' + entity.path + ' -o dot | dot -Tsvg'
+      });
 
       app.emit('session-synchronised', entity._sessionId);
 
       callback(true);
 
-    });
+    }
   }
 
   emitter.resume = function resumePreviewSession (entity){
@@ -71,6 +161,34 @@ module.exports = function (app, contentView){
       $element.html('<div class="md-preview-content">' + marked(currentSession.body) + '</div>');
     } else if (currentSession.entity.mime === "application/json"){
       $element.html('<div class="md-preview-content">' + marked('~~~json\n' + JSON.stringify(JSON.parse(currentSession.body), false, 4) + '~~~\n') + '</div>');
+
+    } else {
+
+      var fileExt = currentSession.entity.name.split('.')[1];
+
+      if (fileExt === "png" || fileExt === "gif" || fileExt === "jpg"){
+
+        $element.html('<img></img>');
+        $element.find('img').attr('src', currentSession.body);
+
+      } else if (fileExt === "pdf") {
+
+        $element.html('<div class="md-preview-content">Sorry, we can\'t display PDF previews yet</div>');
+
+      } else if (fileExt === "ttl"){
+        // the body should be an SVG at this point...
+
+        // will have to look up how to render an SVG document directly in the browser, haven't done it 
+        // in a while if I'm honest...
+        if (currentSession.complete){
+          $element.html(currentSession.body);
+          $element.find('svg').attr('width', parseFloat($element.find('svg').attr('width'), 10) / 2 + "pt");
+          $element.find('svg').attr('height', parseFloat($element.find('svg').attr('height'), 10) / 2 + "pt");
+        } else {
+          $element.html('<div class="md-preview-content">Please wait while we convert this turtle file</div>')
+        }
+        
+      }
 
     }
 

@@ -160,11 +160,23 @@ module.exports = function (app, sessionHandlers, box){
 
     if (!session){
 
-      initialiseSession(entity, entity.name, 'ace', function (session){
+      if (entity.mime !== "application/json" && entity.mime !== "text/x-markdown" && entity.mime !== "application/javascript"){
 
-        resumeSession(session);
+        initialiseSession(entity, entity.name, 'preview', function (session){
 
-      });
+          resumeSession(session);
+
+        })
+
+      } else {
+
+        initialiseSession(entity, entity.name, 'ace', function (session){
+
+          resumeSession(session);
+
+        });
+
+      }
 
     } else {
 

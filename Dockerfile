@@ -5,7 +5,7 @@ ADD src/owldin/ /owldin/
 ADD tools/ /tools/
 
 RUN \
-   apt-get install -q -y raptor-utils graphviz npm && \
+   apt-get install -q -y raptor-utils graphviz git npm && \
    mozroots --import --sync && \
    cd /tools && \
    ./install.sh && \

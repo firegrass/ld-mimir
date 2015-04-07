@@ -134,6 +134,48 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   };
 
+  system.readFileAsBase64 = function readFileAsBase64 (path, fn){
+
+    var entity = entityLookup[path];
+
+    // have to go grizzly for this...
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', entity.href, true);
+    xhr.responseType = 'blob';
+    xhr.onload = function (){
+
+      var blob = xhr.response;
+      var body = URL.createObjectURL(blob);
+
+      request(vfsRoot + entity.parent, function (err, response){
+
+        if (!err){
+          var meta = JSON.parse(response.body);
+          for (var i = 0; i < meta.length; i++){
+            if (meta[i].name === entity.name){
+              entity.mime = meta[i].mime;
+              entity.size = meta[i].size;
+              entity.mtime = meta[i].mtime;
+              fn (false, entity, body);
+              break;
+            }
+          }
+        } else {
+          fn (err, entity);
+        }
+
+      });
+
+    }
+    xhr.onerror = function (){
+      fn (response.status, entity);
+    }
+
+    xhr.send();
+
+  }
+
 
 
   system.writeFile = function writeFile(path, body, fn){
