@@ -5,6 +5,7 @@ ADD src/owldin/ /owldin/
 ADD tools/ /tools/
 
 RUN \
+   apt-get install -yy node npm && \
    mozroots --import --sync && \
    cd /tools && \
    ./install.sh && \
