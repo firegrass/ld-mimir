@@ -1,5 +1,5 @@
 mimir:
-  build: .
+  image: nice/mimir
   command: node /owldin/server.js
   ports:
     - "80:80"
