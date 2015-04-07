@@ -57,6 +57,8 @@ module.exports = function (app, contentView){
       // actually this is 
       if (previewSessions[id]){
         // what should we do with errors? Probably just stop and display "sorry!";
+        // let's actually get the session synchronised anyway...
+        app.emit('session-synchronised', id);
       }
 
     }
@@ -96,7 +98,9 @@ module.exports = function (app, contentView){
       body : {}
     };
 
-    var fileExt = entity.name.split(".")[1];
+
+    var frags = entity.name.split(".")
+    var fileExt = frags[frags.length -1];
 
     if (fileExt === "md" || fileExt === "txt" || fileExt === ""){
 
@@ -137,6 +141,8 @@ module.exports = function (app, contentView){
       session.converted = "";
       session.complete = false;
 
+      debugger;
+
       app.remoteSend('run-command', {
         id : entity._sessionId + '-preview',
         cmd : 'rapper -i turtle .' + entity.path + ' -o dot | dot -Tsvg'
@@ -164,7 +170,8 @@ module.exports = function (app, contentView){
 
     } else {
 
-      var fileExt = currentSession.entity.name.split('.')[1];
+      var frags = entity.name.split(".")
+      var fileExt = frags[frags.length -1];
 
       if (fileExt === "png" || fileExt === "gif" || fileExt === "jpg"){
 
