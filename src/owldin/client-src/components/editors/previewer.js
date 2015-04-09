@@ -2,6 +2,8 @@ var marked = require('marked');
 
 var dom = require('green-mesa-dom');
 
+var path = require('path');
+
 module.exports = function (app, contentView){
 
   var emitter = new (require('events')).EventEmitter();
@@ -98,11 +100,9 @@ module.exports = function (app, contentView){
       body : {}
     };
 
+    var fileExt = path.extname(entity.name);
 
-    var frags = entity.name.split(".")
-    var fileExt = frags[frags.length -1];
-
-    if (fileExt === "md" || fileExt === "txt" || fileExt === ""){
+    if (fileExt === ".md" || fileExt === ".txt" || fileExt === ""){
 
       app.vfs.readFile(entity.path, function (err, response, body){
 
@@ -119,7 +119,7 @@ module.exports = function (app, contentView){
 
       });
 
-    } else if (fileExt === "png" || fileExt === "jpg" || fileExt === "gif") {
+    } else if (fileExt === ".png" || fileExt === ".jpg" || fileExt === ".gif") {
 
       app.vfs.readFileAsBase64(entity.path, function (err, response, body){
 
@@ -136,7 +136,7 @@ module.exports = function (app, contentView){
 
       });
 
-    } else if (fileExt === "ttl") {
+    } else if (fileExt === ".ttl") {
 
       session.converted = "";
       session.complete = false;
@@ -145,7 +145,7 @@ module.exports = function (app, contentView){
 
       app.remoteSend('run-command', {
         id : entity._sessionId + '-preview',
-        cmd : 'rapper -i turtle .' + entity.path + ' -o dot | dot -Tsvg'
+        cmd : 'rapper -i turtle .' + path.join('.', entity.path) + ' -o dot | dot -Tsvg'
       });
 
       app.emit('session-synchronised', entity._sessionId);
@@ -170,19 +170,18 @@ module.exports = function (app, contentView){
 
     } else {
 
-      var frags = entity.name.split(".")
-      var fileExt = frags[frags.length -1];
+      var fileExt = path.extname(entity.name);
 
-      if (fileExt === "png" || fileExt === "gif" || fileExt === "jpg"){
+      if (fileExt === ".png" || fileExt === ".gif" || fileExt === ".jpg"){
 
         $element.html('<img></img>');
         $element.find('img').attr('src', currentSession.body);
 
-      } else if (fileExt === "pdf") {
+      } else if (fileExt === ".pdf") {
 
         $element.html('<div class="md-preview-content">Sorry, we can\'t display PDF previews yet</div>');
 
-      } else if (fileExt === "ttl"){
+      } else if (fileExt === ".ttl"){
         // the body should be an SVG at this point...
 
         // will have to look up how to render an SVG document directly in the browser, haven't done it 
