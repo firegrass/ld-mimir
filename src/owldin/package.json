@@ -20,11 +20,14 @@
     "foreach": "^2.0.5",
     "functional.js": "^0.6.7",
     "gm-gather": "^3.0.0",
+    "green-mesa-dom": "^0.12.2",
     "marked": "^0.3.2",
     "miniagent": "^2.0.1",
     "minimist": "^1.1.0",
+    "moment": "^2.10.2",
     "n3": "^0.3.5",
     "node-uuid": "^1.4.2",
+    "nodegit": "0.3.3",
     "pty.js": "^0.2.5",
     "sockjs": "^0.3.11",
     "socksjs": "^0.5.0",
@@ -35,8 +38,7 @@
     "vfs-http-adapter": "^0.2.3",
     "vfs-local": "^0.3.13",
     "watch": "^0.14.0",
-    "watchr": "2.4.10",
-    "nodegit" : "0.3.3"
+    "watchr": "2.4.10"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
