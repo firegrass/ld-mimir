@@ -5,7 +5,7 @@ ADD src/owldin/ /owldin/
 ADD tools/ /tools/
 
 
-RUN apt-get install -yy git graphviz raptor-utils python make g++
+RUN apt-get update && apt-get install -yy git graphviz raptor-utils python make g++
 
 RUN apt-get install -y nodejs npm &&\
     npm install -g grunt &&\
