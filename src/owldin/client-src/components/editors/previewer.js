@@ -141,11 +141,9 @@ module.exports = function (app, contentView){
       session.converted = "";
       session.complete = false;
 
-      debugger;
-
       app.remoteSend('run-command', {
         id : entity._sessionId + '-preview',
-        cmd : 'rapper -i turtle .' + path.join('.', entity.path) + ' -o dot | dot -Tsvg'
+        cmd : 'rapper -i turtle ' + path.join('.', entity.path) + ' -o dot | dot -Tsvg'
       });
 
       app.emit('session-synchronised', entity._sessionId);
