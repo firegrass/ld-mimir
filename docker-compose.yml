@@ -5,8 +5,6 @@ mimir:
     - "80:80"
   links:
     - schema
-  volumes:
-    - ~/code:/code
   volumes_from:
     - data
 schema:
