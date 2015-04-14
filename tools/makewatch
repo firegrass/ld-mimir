@@ -1,0 +1,9 @@
+#!/bin/bash
+mkdir /git/build
+set -fev
+while inotifywait -m -r -e modify,attrib,close_write,move,create,delete /git/qualitystandards
+do
+/tools/makeless
+done
+
+
