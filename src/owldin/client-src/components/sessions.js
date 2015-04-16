@@ -29,6 +29,7 @@ module.exports = function (app, sessionHandlers, box){
   var sessionId = 0;
   var terminalSessionCount = 0;
   var commandSessionCount = 0;
+  var commitSessionCount = 0;
 
   function getEditor (editor){
 
@@ -46,6 +47,8 @@ module.exports = function (app, sessionHandlers, box){
       return sessionHandlers.newFolder;
     } else if (editor === "command"){
       return sessionHandlers.commands;
+    } else if (editor === "commit"){
+      return sessionHandlers.commit;
     }
   }
 
@@ -263,6 +266,18 @@ module.exports = function (app, sessionHandlers, box){
     var commandId = 'command-' + (++commandSessionCount);
 
     var session = initialiseSession({ path : commandId}, commandId, 'command', function (session){
+
+      resumeSession(session);
+
+    });
+
+  });
+
+  app.on('new-commit-session', function (){
+
+    var commitId = 'commit-' + (++commitSessionCount);
+
+    var session = initialiseSession({ path : commitId}, commitId, 'commit', function (session){
 
       resumeSession(session);
 

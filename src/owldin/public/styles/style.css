@@ -482,3 +482,29 @@ blockquote.diff {
     text-align: right;
     margin-right: 10px;
 }
+
+.commit .output {
+    padding: 20px;
+    /* background: #eeeeee; */
+}
+
+.commit .output table {
+    /* display: block; */
+    background: #dddddd;
+    color: #000000;
+}
+
+.commit table thead {
+    background: white;
+}
+
+.commit ul {
+    list-style: none;
+    margin: 5px 0;
+    padding: 0;
+}
+
+.commit textarea {
+    width: 50%;
+    height: 200px;
+}
