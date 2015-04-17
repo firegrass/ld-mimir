@@ -86,9 +86,12 @@ module.exports = function (app, contentView){
 
     }
 
+
+    debugger;
+
     return [
       '<tr>',
-      '<td><input type="checkbox" name="files" value="' + file +'" checked="checked"></input></td>',
+      '<td><input type="checkbox" name="files" value="' + file.replace('"','').trim() +' " checked="checked"></input></td>',
       '<td>' + file + '</td>',
       '<td>' + state + '</td>',
       '</tr>'
@@ -173,16 +176,16 @@ module.exports = function (app, contentView){
       var form = dom(e.target);
       var list = [];
 
-      var msg = form.find('textarea[name="commit-message"]').val();
+      var msg = form.find('textarea[name="commit-message"]').val().trim();
 
-      if (msg.trim() !== ""){
+      if (msg !== ""){
 
         each(e.target.elements, function (el){
 
           el = dom(el);
 
           if (el.attr('name') === "files"){
-            list.push(el.val());
+            list.push(el.val().trim());
           }
 
         });

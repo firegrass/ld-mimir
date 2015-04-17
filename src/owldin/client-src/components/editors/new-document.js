@@ -80,8 +80,6 @@ module.exports = function (app, contentView){
 
       if (folderName !== "" && folderName.substr(0,1) !== "."){
 
-        session; debugger;
-
         app.vfs.createFile(session.entity.path, folderName, function (err){
 
           if (!err){
