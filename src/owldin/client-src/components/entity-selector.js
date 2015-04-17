@@ -123,6 +123,10 @@ module.exports = function (app, box){
           
           $ul = dom('<ul class="level-' + (level + 1)+ '"></ul>');
 
+          //$el.addClass('open');
+          $ul.addClass('open');
+          dom(el).addClass('open');
+
           $a.on('mouseup', (function(entity, $el, $ul, event){
 
             if (event.which === 1){

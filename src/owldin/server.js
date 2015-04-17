@@ -2,7 +2,7 @@ console.log('Starting Owldin...')
 
 var express = require('express');
 var http = require('http');
-var watchr = require('watchr');
+var watch = require('./lib/inotify');
 var path = require('path');
 var fs = require('fs');
 var assert = require('assert');
@@ -46,6 +46,44 @@ process.env.PS1 = "niceOS:\\w $";
 
 var sCache = {};
 
+  
+var watcher = watch(projectRoot);
+
+watcher.on('update', function (filename){
+
+  broker.emit('update', {
+    path : filename.replace(projectRoot, '')
+  })
+
+});
+
+watcher.on('create', function (filename){
+
+  broker.emit('create',{
+    path : filename.replace(projectRoot, '')
+  })
+
+})
+
+watcher.on('delete', function (filename){
+
+  broker.emit('delete', {
+    path : filename.replace(projectRoot, '')
+  })
+
+});
+
+watcher.on('rename', function (filename, oldFilename){
+
+  broker.emit('rename', {
+    path : filename.replace(projectRoot, ''),
+    oldPath : oldFilename.replace(projectRoot, '')
+  })
+
+});
+
+/*
+
 require('watch').watchTree(projectRoot,function (f, curr, prev) {
     if (typeof f == "object" && prev === null && curr === null) {
       // Finished walking the tree
@@ -82,6 +120,7 @@ require('watch').watchTree(projectRoot,function (f, curr, prev) {
       // f was changed
     }
   });
+*/
 
 function createApplicationAndBeginListening (port, vfs, broker){
 

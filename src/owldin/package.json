@@ -39,7 +39,9 @@
     "vfs-http-adapter": "^0.2.3",
     "vfs-local": "^0.3.13",
     "watch": "^0.14.0",
-    "watchr": "2.4.10"
+    "watchr": "2.4.10",
+    "inotify": "~1.2.1",
+    "inotify-recursive": "0.0.2"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
