@@ -24,6 +24,9 @@ body {
   color: #555;
   padding: 5px;
 }
+.box.editor {
+  overflow: hidden;
+}
 .box.top-menu {
   background: #999;
   box-shadow: 0px 5px 5px rgba(0,0,0,0.2);
@@ -414,6 +417,11 @@ MODAL
 }
 .md-preview-content {
     padding: 20px 40px;
+    width: 60%;
+    margin: 0 auto;
+}
+.md-preview-content pre {
+  word-wrap: break-word;
 }
 
 /* Let's get this party started */

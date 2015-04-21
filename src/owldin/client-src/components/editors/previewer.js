@@ -3,6 +3,7 @@ var marked = require('marked');
 var dom = require('green-mesa-dom');
 
 var path = require('path');
+var svgPanZoom = require('svg-pan-zoom');
 
 module.exports = function (app, contentView){
 
@@ -13,9 +14,10 @@ module.exports = function (app, contentView){
   $element.addClass('preview');
   $element.css({
     display : 'none',
-    'min-width' : contentView.size().x + 'px',
-    'min-height' : contentView.size().y + 'px',
+    'width' : contentView.size().x + 'px',
+    'height' : contentView.size().y + 'px',
     position : 'absolute',
+    overflow : 'scroll',
     top : 0,
     left : 0
   });
@@ -25,8 +27,8 @@ module.exports = function (app, contentView){
   app.layout.on('resize', function (width, height){
 
     $element.css({
-      'min-width' : contentView.size().x + 'px',
-      'min-height' : contentView.size().y + 'px'
+      'width' : contentView.size().x + 'px',
+      'height' : contentView.size().y + 'px'
     });
 
   });
@@ -84,6 +86,8 @@ module.exports = function (app, contentView){
 
         if (previewSessions[id] === currentSession){
           $element.html(previewSessions[id].body);
+          //$element.css({ display : ''});
+          svgPanZoom($element.find('svg').els[0], { minZoom: 0.1});
           $element.find('svg').attr('width', parseFloat($element.find('svg').attr('width'), 10) / 2 + "pt");
           $element.find('svg').attr('height', parseFloat($element.find('svg').attr('height'), 10) / 2 + "pt");
         }
@@ -185,7 +189,10 @@ module.exports = function (app, contentView){
         // will have to look up how to render an SVG document directly in the browser, haven't done it 
         // in a while if I'm honest...
         if (currentSession.complete){
+
           $element.html(currentSession.body);
+          $element.css({ display : ''});
+          svgPanZoom($element.find('svg').els[0], { minZoom: 0.1});
           $element.find('svg').attr('width', parseFloat($element.find('svg').attr('width'), 10) / 2 + "pt");
           $element.find('svg').attr('height', parseFloat($element.find('svg').attr('height'), 10) / 2 + "pt");
         } else {
