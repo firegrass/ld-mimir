@@ -118,6 +118,8 @@ module.exports = function (app, contentView){
     // we only want to save if we're the active session...
     if (currentSession && !currentSession.synchronised){
 
+      currentSession.cursor = currentSession.editor.getCursorPosition();
+
       app.emit('session-synchronising', currentSession.entity._sessionId);
 
       var saveSession = currentSession;
@@ -226,6 +228,9 @@ module.exports = function (app, contentView){
     })
 
     currentSession.editor.setValue(currentSession.bodies.user, 1);
+    if (currentSession.cursor){
+      currentSession.editor.moveCursorToPosition(currentSession.cursor);
+    }
     currentSession.editor.focus();
 
     $element.css({
@@ -237,6 +242,7 @@ module.exports = function (app, contentView){
   emitter.pause = function pauseEditSession (entity){
 
     var session = editSessions[entity._sessionId];
+    session.cursor = session.editor.getCursorPosition();
 
     session.$container.css({
       display : 'none'
