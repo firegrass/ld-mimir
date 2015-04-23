@@ -4,7 +4,7 @@ MAINTAINER Ryan Roberts <ryansroberts@gmail.com>
 ADD src/owldin/ /owldin/
 ADD tools/ /tools/
 
-RUN apt-get install -yy git graphviz raptor-utils python make g++ inotify-tools pandoc texlive-latex-base nodejs npm &&\
+RUN apt-get install -yy git graphviz raptor-utils python make g++ inotify-tools pandoc texlive-latex-base texlive-fonts-extra texlive-fonts-recommended nodejs npm &&\
     npm install -g grunt &&\
     ln /usr/bin/nodejs /usr/bin/node
 
