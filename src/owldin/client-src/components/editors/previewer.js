@@ -154,7 +154,15 @@ module.exports = function (app, contentView){
 
       callback(true);
 
+    } else {
+      // no load...
+      session.body = ""
+      app.emit('session-synchronised', entity._sessionId);
+      callback(true);
+
     }
+
+
   }
 
   emitter.resume = function resumePreviewSession (entity){
@@ -179,10 +187,6 @@ module.exports = function (app, contentView){
         $element.html('<img></img>');
         $element.find('img').attr('src', currentSession.body);
 
-      } else if (fileExt === ".pdf") {
-
-        $element.html('<div class="md-preview-content">Sorry, we can\'t display PDF previews yet</div>');
-
       } else if (fileExt === ".ttl"){
         // the body should be an SVG at this point...
 
@@ -204,6 +208,10 @@ module.exports = function (app, contentView){
         $element.html('<div class="md-preview-content">' + currentSession.body + '</div>');  
         
 
+      } else {
+
+        $element.html('<div class="md-preview-content">There is no built-in viewer for this type of file. <a href="' + app.vfs.getURI(currentSession.entity.path) + '" target="blank">Download ' + currentSession.entity.name + '</a></div>');
+      
       }
     }
 

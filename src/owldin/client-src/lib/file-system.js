@@ -119,6 +119,12 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   var entityLookup = {};
 
+  system.getURI = function getURI (pathName){
+
+    return vfsRoot + pathName;
+
+  } 
+
   system.readFile = function readFile (pathName, fn){
 
     var entity = entityLookup[pathName];
