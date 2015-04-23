@@ -1,6 +1,7 @@
 var request = require('browser-request');
 var Gather = require('gm-gather');
 var cloneDeep = require('clone-deep');
+var path = require('path')
 
 var console = require('../components/console.js');
 
@@ -30,6 +31,29 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
     });
 
   });
+
+  app.on('remote-entity-rename', function (msg){
+
+    app.emit('entity-renamed', 'rename', msg.path, msg.oldPath);
+
+    loadFileSystem(data.children.root.href, function (err){
+
+      if (!err){
+
+        console.log('Remote file system synchronised');
+
+        app.emit('sync', data.children.root.relPath);
+
+      } else {
+
+        app.emit('sync-error', 'Unable to synchronise with remote file system', err);
+
+      }
+
+    });
+
+
+  })
 
   app.on('remote-entity-create', function (msg){
 
@@ -95,9 +119,24 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   var entityLookup = {};
 
-  system.readFile = function readFile (path, fn){
+  system.readFile = function readFile (pathName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
+
+    // technically if this doesn't exist...
+
+    if (!entity){ // doesn't exist?
+      var parentPath = path.join(path.dirname(pathName), '/');
+      //parent = entityLookup[parentPath];
+
+      entity = {
+        parent : parentPath,
+        href : vfsRoot + pathName,
+        mime : '',
+        size : 0,
+        mtime : 0
+      }
+    }
 
     request(entity.href, function (err, response){
 
@@ -109,7 +148,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
         request(vfsRoot + entity.parent, function (err, response){
 
-          if (!err){
+          if (!err && (response.status === 200 || response.status === 304)){
             var meta = JSON.parse(response.body);
             for (var i = 0; i < meta.length; i++){
               if (meta[i].name === entity.name){
@@ -134,9 +173,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   };
 
-  system.readFileAsBase64 = function readFileAsBase64 (path, fn){
+  system.readFileAsBase64 = function readFileAsBase64 (pathName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     // have to go grizzly for this...
 
@@ -178,16 +217,16 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
 
 
-  system.writeFile = function writeFile(path, body, fn){
+  system.writeFile = function writeFile(pathName, body, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     if (entity){
 
       request.put({ uri : entity.href, body : body}, function (err, response){
         if (!err){
           fn (false, entity);
-          app.emit('entity-updated', 'update', path);
+          app.emit('entity-updated', 'update', pathName);
         } else {
           fn (err);
         }
@@ -195,33 +234,44 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
     } else {
 
-      request.put({ uri : vfsRoot + path, body : body}, function (err, response){
+      var entity = {
+        href : vfsRoot + pathName,
+        parent : path.dirname(pathName) + "/"
+      }
+
+      request.put({ uri : vfsRoot + pathName, body : body}, function (err, response){
         if (!err){
 
-          var p = path.split('/'); var name = p.pop(); p.shift(); 
+          var p = pathName.split('/'); var name = p.pop(); p.shift(); 
           var folder = "/" + p.join('/');
+
+          if (!/\/$/.test(folder)){
+            folder += "/";
+          }
 
           request.get(vfsRoot + folder, function (err, response){
 
             var ref = getDirectoryReference(folder);
 
             var body = JSON.parse(response.body);
-            var entity = false;
 
             for (var i = 0; i < body.length; i++){
               if (body[i].name === name){
-                entity = body[i];
+                entity.name = body[i].name;
+                entity.size = body[i].size;
+                entity.mime = body[i].mime;
+                entity.mtime = body[i].mtime;
                 break;
               }
             }
 
-            entityLookup[path] = entity;
+            entityLookup[pathName] = entity;
 
             ref.entities.push(entity);
 
             fn (false, entity);
             app.emit('sync', data.children.root.relPath);
-            app.emit('entity-updated', 'update', path);
+            app.emit('entity-updated', 'update', pathName);
 
 
           });
@@ -237,9 +287,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   };
 
-  system.renameFile = function renameFile (path, newName, fn){
+  system.renameFile = function renameFile (pathName, newName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     var oldPath = entity.relPath;
     var newPath = entity.href.replace(entity.name, newName);
@@ -252,7 +302,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
         newEntity.href = newPath;
         newEntity.name = newName;
 
-        delete entityLookup[path];
+        delete entityLookup[pathName];
 
         entityLookup[newEntity.relPath] = newEntity;
 
@@ -265,9 +315,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
     });
   };
 
-  system.deleteFile = function deleteFile (path, fn){
+  system.deleteFile = function deleteFile (pathName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     request({ method : 'delete', url : entity.href}, function (err, response){
 
@@ -277,13 +327,13 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   };
 
-  system.readFolder = function readFolder (path, fn){
+  system.readFolder = function readFolder (pathName, fn){
 
   };
 
-  system.writeFolder = function writeFolder (path, newFolderName, fn){
+  system.writeFolder = function writeFolder (pathName, newFolderName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     var newPath = entity.href + "/" + newFolderName + "/";
 
@@ -295,9 +345,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   };
 
-  system.createFile = function writeFolder (path, newFileName, fn){
+  system.createFile = function writeFolder (pathName, newFileName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     var newPath = entity.href + "/" + newFileName;
 
@@ -311,7 +361,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   system.renameFolder = function renameFolder (path, newName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     var newPath = entity.href.replace(entity.name + "/", newName);
     var oldPath = entity.relPath;
@@ -331,9 +381,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   };
 
-  system.deleteFolder = function deleteFolder (path, fn){
+  system.deleteFolder = function deleteFolder (pathName, fn){
 
-    var entity = entityLookup[path];
+    var entity = entityLookup[pathName];
 
     request({ method : 'delete', url : entity.href}, function (err, response){
 
@@ -386,9 +436,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   // however we're doing to load the entire file system in now.
 
-  function loadFileSystem (path, fn){
+  function loadFileSystem (pathName, fn){
 
-    request(path, function (err, response, body){
+    request(pathName, function (err, response, body){
 
       if (!err){
 
@@ -398,9 +448,9 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
         //directoryCache[activeDirectory] = body;
 
-        updateFileSystem(path, body);
+        updateFileSystem(pathName, body);
   
-        var pointer = getDirectoryReference(path);
+        var pointer = getDirectoryReference(pathName);
 
         var gatherer = new Gather();
 
@@ -472,12 +522,12 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   });
 
-  function getDirectoryReference (path){
+  function getDirectoryReference (pathName){
       // pop off the first and last
 
-    path = path.replace(vfsRoot, '');
+    pathName = pathName.replace(vfsRoot, '');
 
-    var pathChunks = path.split('/');
+    var pathChunks = pathName.split('/');
     var pointer = data;
 
     pathChunks.shift(); 
@@ -497,11 +547,11 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
   }
 
-  function updateFileSystem(path, entities){
+  function updateFileSystem(pathName, entities){
 
     // Okay the objective here is to get all the changes...
 
-    var pointer = getDirectoryReference(path);
+    var pointer = getDirectoryReference(pathName);
 
     var currentEntities = pointer.entities.splice(0, pointer.entities.length);
 
@@ -528,7 +578,7 @@ module.exports.initialiseFileSystem = function initialiseFileSystem (app, vfsRoo
 
         // create a relpath..
         entity.relPath = entity.href.replace(vfsRoot, '');
-        entity.parent = path.replace(vfsRoot, '');
+        entity.parent = pathName.replace(vfsRoot, '');
         // create a lookup by relpath.. 
         entityLookup[entity.relPath] = entity;
 

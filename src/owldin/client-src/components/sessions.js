@@ -79,7 +79,7 @@ module.exports = function (app, sessionHandlers, box){
 
     });
 
-    dom('span.typcn-power', session.$tab).on('click', function (e){
+    dom('span', session.$tab).on('click', function (e){
 
       destroySession(session);
 

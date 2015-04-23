@@ -103,7 +103,11 @@ module.exports = function (app, contentView){
 
       } else if (type === "delete"){
 
-
+        session.bodies.persisted = "";
+        if (currentSession && currentSession.entity._sessionId === session.entity._sessionId){
+          emitter.resume(session.entity);
+          app.emit('session-desynchronised', session.entity._sessionId);
+        }
 
       }
 
@@ -112,6 +116,18 @@ module.exports = function (app, contentView){
     //}
 
   });
+
+app.on('entity-renamed', function (type, path, oldPath){
+
+  var session = findSessions(oldPath);
+
+  if (session){
+
+    debugger;
+
+  }
+
+});
 
   app.on('save-entity', function (){
 
@@ -128,11 +144,11 @@ module.exports = function (app, contentView){
       app.vfs.writeFile(currentSession.entity.path, currentSession.bodies.user, function (err, response){
         
         saveSession.bodies.persisted = saveSession.bodies.saving;
-        if (saveSession.bodies.persisted === saveSession.bodies.user){
-          app.emit('session-synchronised', saveSession.entity._sessionId);
-        }
+        //if (saveSession.bodies.persisted === saveSession.bodies.user){
+        //  app.emit('session-synchronised', saveSession.entity._sessionId);
+        //}
         // send 'new' and 'old'
-        app.emit('entity-updated', 'update', saveSession.entity.path);
+        //app.emit('entity-updated', 'update', saveSession.entity.path);
 
       });
     }
@@ -269,6 +285,15 @@ module.exports = function (app, contentView){
       callback(true);
 
     } else {
+
+      if (session.bodies.persisted !== session.bodies.user){
+        var close = confirm('You have unsaved changes! Close anyway?');
+
+        if (!close){
+          callback(false);
+          return;
+        }
+      }
 
       session.editor.destroy();
       session.$container.remove();
