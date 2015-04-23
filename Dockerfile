@@ -1,12 +1,5 @@
-FROM nice/ld-docker-app
+FROM nice/ld-mimirbase
 MAINTAINER Ryan Roberts <ryansroberts@gmail.com>
-
-ADD src/owldin/ /owldin/
-ADD tools/ /tools/
-
-RUN apt-get update && apt-get install -yy git graphviz raptor-utils python make g++ inotify-tools pandoc texlive-latex-base texlive-fonts-extra texlive-fonts-recommended nodejs npm &&\
-    npm install -g grunt &&\
-    ln /usr/bin/nodejs /usr/bin/node
 
 #Explicitly adding package.json should cache this layer if it hasn't changed
 #See http://www.clock.co.uk/blog/a-guide-on-how-to-cache-npm-install-with-docker
