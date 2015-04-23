@@ -106,7 +106,7 @@ module.exports = function (app, contentView){
 
     var fileExt = path.extname(entity.name);
 
-    if (fileExt === ".md" || fileExt === ".txt" || fileExt === ""){
+    if (fileExt === ".md" || fileExt === ".txt" || fileExt === "" || fileExt === ".html"){
 
       app.vfs.readFile(entity.path, function (err, response, body){
 
@@ -199,8 +199,12 @@ module.exports = function (app, contentView){
           $element.html('<div class="md-preview-content">Please wait while we convert this turtle file</div>')
         }
         
-      }
+      } else if (fileExt === ".html"){
 
+        $element.html('<div class="md-preview-content">' + currentSession.body + '</div>');  
+        
+
+      }
     }
 
     $element.css({ display : ''});

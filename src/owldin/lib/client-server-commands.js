@@ -64,6 +64,13 @@ module.exports = function (server, broker){
       }));
     })
   });
+  broker.on('rename', function (msg){
+    socketConnections.forEach(function (conn){
+      conn.write(JSON.stringify({
+          'remote-entity-create': msg
+      }));
+    })
+  });
   broker.on('update', function (msg){
     socketConnections.forEach(function (conn){
       conn.write(JSON.stringify({
