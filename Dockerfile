@@ -10,7 +10,6 @@ RUN cd /owldin && \
 # Same trick with paket.lock
 ADD tools/paket.lock /tools/
 RUN cd /tools && \
-    mono .paket/paket.exe update && \
     ./install.sh
 
 ENV PROJECT_DIR="/git"
