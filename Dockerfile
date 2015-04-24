@@ -6,6 +6,7 @@ MAINTAINER Ryan Roberts <ryansroberts@gmail.com>
 ADD src/owldin/package.json /owldin/
 RUN cd /owldin && \
     npm install
+ADD src/owldin/ /owldin
 
 # Same trick with paket.lock
 ADD tools/ /tools/
