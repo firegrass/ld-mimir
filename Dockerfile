@@ -8,7 +8,7 @@ RUN cd /owldin && \
     npm install
 
 # Same trick with paket.lock
-ADD tools/paket.lock /tools/
+ADD tools/ /tools/
 RUN cd /tools && \
     ./install.sh
 

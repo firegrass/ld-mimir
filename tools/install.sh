@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -xef
+
 mono .paket/paket.exe restore
 
 ln -s /tools/freya /usr/bin/freya
