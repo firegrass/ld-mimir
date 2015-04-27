@@ -1,5 +1,6 @@
 image: nice/ld-docker-build:latest
 script:
+  - echo $DOCKER_HOST
   - ./.drone/build.sh
 publish:
   docker:
@@ -9,4 +10,4 @@ publish:
     email: $$DOCKERHUB_EMAIL
     registry_login: true
     tag: latest
-    docker_host: tcp://172.17.42.1:2375
+#    docker_host: tcp://172.17.42.1:2375
