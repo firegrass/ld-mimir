@@ -1,6 +1,6 @@
 image: nice/ld-docker-build:latest
 script:
-  - echo $DOCKER_HOST
+  - echo $DRONE_WORKER_NODES
   - ./.drone/build.sh
 publish:
   docker:
